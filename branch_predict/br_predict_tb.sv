@@ -10,15 +10,42 @@ module br_predict_tb();
 		rst_n = 0;
 		@(posedge clk);
 		rst_n = 1;
-		for (int i = 0; i < 10; i++) begin
-			taken = ;
-			
-		end
+		if (~take) // should start of strongly taken and so take should be high
+			$stop();
+		taken = 1;
+		@(posedge clk);
+		if (~take) // should stay in strongly taken and so take should be high
+			$stop();
+		taken = 0;
+		@(posedge clk);
+		if (~take) // should be in taken and so take should be high
+			$stop();
+		taken = 0;
+		@(posedge clk);
+		if (take) // should be in not taken and so take should be low
+			$stop();
+		taken = 0;
+		@(posedge clk);
+		if (take) // should be in strongly not taken and so take should be low
+			$stop();
+		taken = 1;
+		@(posedge clk);
+		if (take) // should be in not taken and so take should be low
+			$stop();
+		taken = 1;
+		@(posedge clk);
+		if (~take) // should be in taken and so take should be high
+			$stop();
+		taken = 1;
+		@(posedge clk);
+		if (~take) // should be in strongly taken and so take should be high
+			$stop();
+		
+		$display("Yahoo! Test Passed.");
+		$stop();
 	end
 	
-	always begin
-		#5 clk = ~clk;
-	end
+	always #5 clk = ~clk;
 
 
 endmodule
