@@ -150,7 +150,7 @@ module alu_tb();
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
-			expected = a << b;
+			expected = a << b[4:0];
 			alu_op = 4'b0101;
 			fork
 				begin : timeout1
@@ -177,7 +177,7 @@ module alu_tb();
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
-			expected = a >> b;
+			expected = a >> b[4:0];
 			alu_op = 4'b0110;
 			fork
 				begin : timeout1
@@ -204,7 +204,7 @@ module alu_tb();
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
-			expected = a >>> b;
+			expected = a >>> b[4:0];
 			alu_op = 4'b0111;
 			fork
 				begin : timeout1

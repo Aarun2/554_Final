@@ -24,9 +24,9 @@ module alu(a, b, alu_op, result, branch);
             4'b0010 : result = a^b; // a ^ b
             4'b0011 : result = a|b; // a | b
             4'b0100 : result = a&b; // a & b
-            4'b0101 : result = |(b[31:5]) ? 32'd0 : a << b; // a sll b
-            4'b0110 : result = |(b[31:5]) ? 32'd0 : a >> b; // a srl b
-            4'b0111 : result = |(b[31:5]) ? {32{a[31]}} : a >>> b; // a sra b
+            4'b0101 : result = a << b[4:0]; // a sll b
+            4'b0110 : result = a >> b[4:0]; // a srl b
+            4'b0111 : result = a >>> b[4:0]; // a sra b
             4'b1000 : result = (a < b) ? 32'b1 : 32'b0; // set less than 
             4'b1001 : result = mult[31:0]; // a * b
 			4'b1010 : result = b << 12; // load upper immediate
