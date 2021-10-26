@@ -5,12 +5,14 @@ module alu_tb();
 	logic [3:0] alu_op;
 	logic branch, expected_branch;
 	
+	parameter loop_checks = 1000;
+	
 	alu alu_DUT (.a(a), .b(b), .alu_op(alu_op), .result(result), .branch(branch));
 	
 	initial begin
 		
 		// Test 1: Add Test, Op: 4'b0000 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a + b;
@@ -37,7 +39,7 @@ module alu_tb();
 		$display("Test 1 passed");
 		
 		// Test 2: Subtract Test, Op: 4'b0001 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a - b;
@@ -64,7 +66,7 @@ module alu_tb();
 		$display("Test 2 passed");
 		
 		// Test 3: Xor Test, Op: 4'b0010 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a ^ b;
@@ -91,7 +93,7 @@ module alu_tb();
 		$display("Test 3 passed");
 		
 		// Test 4: Or Test, Op: 4'b0011 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a | b;
@@ -117,8 +119,8 @@ module alu_tb();
 		end
 		$display("Test 4 passed");
 		
-		// Test 5: And Test, Op: 4'b0100 //
-		for (int i = 0; i < 100; i++) begin
+		// Test 5: And Test, Op: 4'b0loop_checks //
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a & b;
@@ -145,7 +147,7 @@ module alu_tb();
 		$display("Test 5 passed");
 		
 		// Test 6: SLL Test, Op: 4'b0101 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a << b;
@@ -172,7 +174,7 @@ module alu_tb();
 		$display("Test 6 passed");
 		
 		// Test 7: SRL Test, Op: 4'b0110 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a >> b;
@@ -199,7 +201,7 @@ module alu_tb();
 		$display("Test 7 passed");
 		
 		// Test 8: SRA Test, Op: 4'b0111 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a >>> b;
@@ -225,8 +227,8 @@ module alu_tb();
 		end
 		$display("Test 8 passed");
 		
-		// Test 9: SLT Test, Op: 4'b1000 //
-		for (int i = 0; i < 100; i++) begin
+		// Test 9: SLT Test, Op: 4'bloop_checks0 //
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = (a < b);
@@ -252,8 +254,8 @@ module alu_tb();
 		end
 		$display("Test 9 passed");
 		
-		// Test 10: Multiply Test, Op: 4'b1001 //
-		for (int i = 0; i < 100; i++) begin
+		// Test 10: Multiply Test, Op: 4'bloop_checks1 //
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			mult_result = a*b;
@@ -276,12 +278,11 @@ module alu_tb();
 					disable timeout1;
 				end
 			join
-			repeat(70000) #1;
 		end
 		$display("Test 10 passed");
 		
 		// Test 11: LUI Test, Op: 4'b1010 //
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = b << 12;
@@ -303,13 +304,12 @@ module alu_tb();
 					disable timeout1;
 				end
 			join
-			repeat(70000) #1;
 		end
 		$display("Test 11 passed");
 		
 		// Test 11: Beq Test //
 		alu_op = 4'b1100;
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
 			case (expected_branch)
 				0: begin // set not equal should not branch here
@@ -343,7 +343,7 @@ module alu_tb();
 		
 		// Test 12: Bne Test //
 		alu_op = 4'b1101;
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
 			case (expected_branch)
 				0: begin // set equal should not branch here
@@ -377,7 +377,7 @@ module alu_tb();
 		
 		// Test 13: Bgt Test //
 		alu_op = 4'b1110;
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
 			case (expected_branch)
 				0: begin // set a less than or equal to b should not branch here
@@ -419,7 +419,7 @@ module alu_tb();
 		
 		// Test 14: Blt Test //
 		alu_op = 4'b1111;
-		for (int i = 0; i < 100; i++) begin
+		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
 			case (expected_branch)
 				0: begin // set a greater than or equal to b should not branch here
@@ -458,6 +458,33 @@ module alu_tb();
 			join
 		end
 		$display("Test 14 passed");
+		
+		// Test 15: Mulh Test //
+		for (int i = 0; i < loop_checks; i++) begin
+			a = $random();
+			b = $random();
+			mult_result = a * b;
+			expected = mult_result[63:32];
+			alu_op = 4'b1011;
+			fork
+				begin : timeout1
+					repeat(70000) #1;
+					$display("Timed out waiting for MULT result to change");
+					$stop();
+				end
+				begin
+					while (result !== expected) begin
+						#1;
+						if (branch) begin
+							$display("Branch should not be asserted on MULT instruction");
+							$stop();
+						end
+					end
+					disable timeout1;
+				end
+			join
+		end
+		$display("Test 15 passed");
 		
 		$display("Yahoo! All tests passed");
 		$stop();
