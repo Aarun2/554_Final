@@ -11,12 +11,12 @@ module alu_tb();
 	
 	initial begin
 		
-		// Test 1: Add Test, Op: 4'b0000 //
+		// Test 1: Add Test, Op: 4'b0001 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a + b;
-			alu_op = 4'b0000;
+			alu_op = 4'b0001;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -38,12 +38,12 @@ module alu_tb();
 		end
 		$display("Test 1 passed");
 		
-		// Test 2: Subtract Test, Op: 4'b0001 //
+		// Test 2: Subtract Test, Op: 4'b0010 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a - b;
-			alu_op = 4'b0001;
+			alu_op = 4'b0010;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -65,12 +65,12 @@ module alu_tb();
 		end
 		$display("Test 2 passed");
 		
-		// Test 3: Xor Test, Op: 4'b0010 //
+		// Test 3: Xor Test, Op: 4'b0011 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a ^ b;
-			alu_op = 4'b0010;
+			alu_op = 4'b0011;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -92,12 +92,12 @@ module alu_tb();
 		end
 		$display("Test 3 passed");
 		
-		// Test 4: Or Test, Op: 4'b0011 //
+		// Test 4: Or Test, Op: 4'b0100 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a | b;
-			alu_op = 4'b0011;
+			alu_op = 4'b0100;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -119,12 +119,12 @@ module alu_tb();
 		end
 		$display("Test 4 passed");
 		
-		// Test 5: And Test, Op: 4'b0loop_checks //
+		// Test 5: And Test, Op: 4'b0101 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a & b;
-			alu_op = 4'b0100;
+			alu_op = 4'b0101;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -146,12 +146,12 @@ module alu_tb();
 		end
 		$display("Test 5 passed");
 		
-		// Test 6: SLL Test, Op: 4'b0101 //
+		// Test 6: SLL Test, Op: 4'b0110 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a << b[4:0];
-			alu_op = 4'b0101;
+			alu_op = 4'b0110;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -173,12 +173,12 @@ module alu_tb();
 		end
 		$display("Test 6 passed");
 		
-		// Test 7: SRL Test, Op: 4'b0110 //
+		// Test 7: SRL Test, Op: 4'b0111 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a >> b[4:0];
-			alu_op = 4'b0110;
+			alu_op = 4'b0111;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -200,12 +200,12 @@ module alu_tb();
 		end
 		$display("Test 7 passed");
 		
-		// Test 8: SRA Test, Op: 4'b0111 //
+		// Test 8: SRA Test, Op: 4'b1000 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = a >>> b[4:0];
-			alu_op = 4'b0111;
+			alu_op = 4'b1000;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -227,12 +227,12 @@ module alu_tb();
 		end
 		$display("Test 8 passed");
 		
-		// Test 9: SLT Test, Op: 4'b1000 //
+		// Test 9: SLT Test, Op: 4'b1001 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = (a < b);
-			alu_op = 4'b1000;
+			alu_op = 4'b1001;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -254,13 +254,13 @@ module alu_tb();
 		end
 		$display("Test 9 passed");
 		
-		// Test 10: Multiply Test, Op: 4'b1001 //
+		// Test 10: Multiply Test, Op: 4'b1010 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			mult_result = a*b;
 			expected = mult_result[31:0];
-			alu_op = 4'b1001;
+			alu_op = 4'b1010;
 			fork
 				begin : timeout1
 					repeat(70000) #1;
@@ -281,12 +281,12 @@ module alu_tb();
 		end
 		$display("Test 10 passed");
 		
-		// Test 11: LUI Test, Op: 4'b1010 //
+		// Test 11: LUI Test, Op: 4'b1011 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
 			expected = b << 12;
-			alu_op = 4'b1010;
+			alu_op = 4'b1011;
 			fork
 				begin : timeout1
 					repeat(70000) #1;

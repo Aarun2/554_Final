@@ -19,17 +19,17 @@ module alu(a, b, alu_op, result, branch);
     
     always @(*)
         case(alu_op)
-            4'b0000 : result = a+b; // a + b
-            4'b0001 : result = a-b; // a - b
-            4'b0010 : result = a^b; // a ^ b
-            4'b0011 : result = a|b; // a | b
-            4'b0100 : result = a&b; // a & b
-            4'b0101 : result = a << b[4:0]; // a sll b
-            4'b0110 : result = a >> b[4:0]; // a srl b
-            4'b0111 : result = a >>> b[4:0]; // a sra b
-            4'b1000 : result = (a < b) ? 32'b1 : 32'b0; // set less than 
-            4'b1001 : result = mult; // a * b
-			4'b1010 : result = b << 12; // load upper immediate
+            4'b0001 : result = a+b; // a + b
+            4'b0010 : result = a-b; // a - b
+            4'b0011 : result = a^b; // a ^ b
+            4'b0100 : result = a|b; // a | b
+            4'b0101 : result = a&b; // a & b
+            4'b0110 : result = a << b[4:0]; // a sll b
+            4'b0111 : result = a >> b[4:0]; // a srl b
+            4'b1000 : result = a >>> b[4:0]; // a sra b
+            4'b1001 : result = (a < b) ? 32'b1 : 32'b0; // set less than 
+            4'b1010 : result = mult; // a * b
+			4'b1011 : result = b << 12; // load upper immediate
 			default : result  = {32{1'bX}}; // default all high
         endcase
 
