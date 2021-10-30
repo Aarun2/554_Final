@@ -4,7 +4,7 @@ module alu(a, b, alu_op, result, branch);
     output logic signed [31:0] result;
     output logic branch;
 	
-	wire [64:0] mult;
+	wire [31:0] mult;
 
 	assign mult = a * b;
 
@@ -28,10 +28,9 @@ module alu(a, b, alu_op, result, branch);
             4'b0110 : result = a >> b[4:0]; // a srl b
             4'b0111 : result = a >>> b[4:0]; // a sra b
             4'b1000 : result = (a < b) ? 32'b1 : 32'b0; // set less than 
-            4'b1001 : result = mult[31:0]; // a * b
+            4'b1001 : result = mult; // a * b
 			4'b1010 : result = b << 12; // load upper immediate
-            4'b1011 : result = mult[63:32]; // load high 32 bits
-			default : result  = {32{1'b1}}; // default all high
+			default : result  = {32{1'bX}}; // default all high
         endcase
 
 endmodule

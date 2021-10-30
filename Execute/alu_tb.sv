@@ -227,7 +227,7 @@ module alu_tb();
 		end
 		$display("Test 8 passed");
 		
-		// Test 9: SLT Test, Op: 4'bloop_checks0 //
+		// Test 9: SLT Test, Op: 4'b1000 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
@@ -254,7 +254,7 @@ module alu_tb();
 		end
 		$display("Test 9 passed");
 		
-		// Test 10: Multiply Test, Op: 4'bloop_checks1 //
+		// Test 10: Multiply Test, Op: 4'b1001 //
 		for (int i = 0; i < loop_checks; i++) begin
 			a = $random();
 			b = $random();
@@ -307,7 +307,7 @@ module alu_tb();
 		end
 		$display("Test 11 passed");
 		
-		// Test 11: Beq Test //
+		// Test 11: Beq Test, Op: 4'b1100 //
 		alu_op = 4'b1100;
 		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
@@ -330,8 +330,8 @@ module alu_tb();
 				begin
 					while (branch !== expected_branch) begin
 						#1;
-						if (result !== 32'hFFFFFFFF) begin
-							$display("Result should be default value of all 1's");
+						if (result !== 32'hXXXXXXXX) begin
+							$display("Result should be default value of all X's");
 							$stop();
 						end
 					end
@@ -341,7 +341,7 @@ module alu_tb();
 		end
 		$display("Test 11 passed");
 		
-		// Test 12: Bne Test //
+		// Test 12: Bne Test, Op: 4'b1101 //
 		alu_op = 4'b1101;
 		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
@@ -364,8 +364,8 @@ module alu_tb();
 				begin
 					while (branch !== expected_branch) begin
 						#1;
-						if (result !== 32'hFFFFFFFF) begin
-							$display("Result should be default value of all 1's");
+						if (result !== 32'hXXXXXXXX) begin
+							$display("Result should be default value of all X's");
 							$stop();
 						end
 					end
@@ -375,7 +375,7 @@ module alu_tb();
 		end
 		$display("Test 12 passed");
 		
-		// Test 13: Bgt Test //
+		// Test 13: Bgt Test, Op: 4'b1110 //
 		alu_op = 4'b1110;
 		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
@@ -406,8 +406,8 @@ module alu_tb();
 				begin
 					while (branch !== expected_branch) begin
 						#1;
-						if (result !== 32'hFFFFFFFF) begin
-							$display("Result should be default value of all 1's");
+						if (result !== 32'hXXXXXXXX) begin
+							$display("Result should be default value of all X's");
 							$stop();
 						end
 					end
@@ -417,7 +417,7 @@ module alu_tb();
 		end
 		$display("Test 13 passed");
 		
-		// Test 14: Blt Test //
+		// Test 14: Blt Test, Op: 4'b1111 //
 		alu_op = 4'b1111;
 		for (int i = 0; i < loop_checks; i++) begin
 			expected_branch = $random() % 2; // two possible options: 1 or 0
@@ -448,8 +448,8 @@ module alu_tb();
 				begin
 					while (branch !== expected_branch) begin
 						#1;
-						if (result !== 32'hFFFFFFFF) begin
-							$display("Result should be default value of all 1's");
+						if (result !== 32'hXXXXXXXX) begin
+							$display("Result should be default value of all X's");
 							$stop();
 						end
 					end
@@ -459,34 +459,7 @@ module alu_tb();
 		end
 		$display("Test 14 passed");
 		
-		// Test 15: Mulh Test //
-		for (int i = 0; i < loop_checks; i++) begin
-			a = $random();
-			b = $random();
-			mult_result = a * b;
-			expected = mult_result[63:32];
-			alu_op = 4'b1011;
-			fork
-				begin : timeout1
-					repeat(70000) #1;
-					$display("Timed out waiting for MULT result to change");
-					$stop();
-				end
-				begin
-					while (result !== expected) begin
-						#1;
-						if (branch) begin
-							$display("Branch should not be asserted on MULT instruction");
-							$stop();
-						end
-					end
-					disable timeout1;
-				end
-			join
-		end
-		$display("Test 15 passed");
-		
-		$display("Yahoo! All tests passed");
+		$display("Yahoo Tests Passed!");
 		$stop();
 	end
 
