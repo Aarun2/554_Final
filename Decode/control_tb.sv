@@ -633,11 +633,11 @@ module control_tb();
 		
 		// Test 1: Check 500 random exhaustive opcode checks
 		for (int i = 0; i < 500; i++) begin
-    		for (int i =0 ; i < 2**7; i++) begin
-    			pkt.randomize();			
-    			op = pkt.op;
-    			call_wait();
-    		end
+    			for (int i =0 ; i < 2**7; i++) begin
+    				pkt.randomize();			
+    				op = pkt.op;
+    				call_wait();
+    			end
 		end
 		
 		$display("Yahoo! All tests Passed");
