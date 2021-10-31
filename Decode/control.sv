@@ -1,15 +1,15 @@
-module control(op, alu_op, jump, branch, write, imm_sel, wb_sel);
+module control(op, alu_op, branch, write, imm_sel, wb_sel);
 
 	input [6:0] op;
 	
 	output [3:0] alu_op;
-	output jump, branch, write, imm_sel, wb_sel;
+	output [1:0] branch;
+	output imm_sel, wb_sel;
+	output logic write;
 
 	assign alu_op = (~op[6] & op[5] & ~op[4]) ? 4'h1 : op[3:0];
-	
-	assign jump = op[6] & op[5] & op[4] & op[3] & op[2] & op[1];
-	
-	assign branch = (~op[6] & op[5] & op[4]);
+		
+	assign branch = (~op[6] & op[5] & op[4]) ? 2'b01 : (op[6] & op[5] & op[4] & op[3] & op[2] & op[1]) ? {1'b1, op[0]} : 2'b00;
 	
 	assign imm_sel = op[4] ^ op[5];
 	
@@ -119,4 +119,5 @@ module control(op, alu_op, jump, branch, write, imm_sel, wb_sel);
 			default : begin
 				write = 0;
 			end
+		endcase
 endmodule
