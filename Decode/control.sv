@@ -1,13 +1,28 @@
-module control(op, alu_op, branch, write, imm_sel, wb_sel);
+module control(op, alu_op, branch, write, m_write, imm_sel, wb_sel);
 
 	input [6:0] op;
 	
 	output [3:0] alu_op;
 	output [1:0] branch;
 	output imm_sel, wb_sel;
-	output logic write;
+	output logic write, m_write;
+	
+	/*
+	wire tpu_instr;
+	
+	assign tpu_instr = op[6] & ~op[5] & op[4];
 
-	assign alu_op = (~op[6] & op[5] & ~op[4]) ? 4'h1 : op[3:0];
+	assign start = tpu_instr & op[3];
+	
+	assign WrEnA = tpu_instr & op[0];
+	
+	assign WrEnB = tpu_instr & op[1];
+	
+	assign WrEnC = tpu_instr & op[2];
+	
+	*/
+	
+	assign alu_op = wb_sel ? 4'h1 : op[3:0];
 		
 	assign branch = (~op[6] & op[5] & op[4]) ? 2'b01 : (op[6] & op[5] & op[4] & op[3] & op[2] & op[1]) ? {1'b1, op[0]} : 2'b00;
 	
@@ -15,7 +30,9 @@ module control(op, alu_op, branch, write, imm_sel, wb_sel);
 	
 	assign wb_sel = (~op[6] & op[5] & ~op[4]);
 	
-	always @(op)
+	always begin
+		m_write = 0;
+		
 		casex(op)
 			7'h00 : begin // NOP
 				write = 0;
@@ -82,6 +99,7 @@ module control(op, alu_op, branch, write, imm_sel, wb_sel);
 			end
 			7'h21 : begin // sw
 				write = 0;
+				m_write = 1;
 			end
 			7'h3C : begin // beq
 				write = 0;
@@ -120,4 +138,5 @@ module control(op, alu_op, branch, write, imm_sel, wb_sel);
 				write = 0;
 			end
 		endcase
+	end
 endmodule
