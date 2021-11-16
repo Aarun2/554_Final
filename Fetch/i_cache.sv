@@ -1,16 +1,18 @@
-module i_cache(clk, rst_n, addr, instr);
+module i_cache
+	#(
+	parameter PC_BITS = 16
+	)
+	(
+	input clk_i, rst_n_i,
+	input [PC_BITS-1:0] addr_i,
+	output [PC_BITS-1:0] instr_o
+	);
 	
-	localparam PC_BITS = 16;
+	logic [PC_BITS-1:0] instr_mem [(2**PC_BITS) - 1:0];
 	
-	input clk, rst_n; //left in for now in case things change in the future
-	input [PC_BITS-1:0] addr;
-	output [PC_BITS-1:0] instr;
-	
-	reg [PC_BITS-1:0] instrMem [(2**PC_BITS) - 1:0];
-	
-	assign instr = instrMem[addr];
+	assign instr_o = instr_mem[addr_i];
 	
 	initial	
-		$readmemh("test_icache.txt", instrMem);
+		$readmemh("test_icache.txt", instr_mem);
 
 endmodule
