@@ -1,12 +1,12 @@
 module memory
 	#(
-	parameter PC_BITS = 16,
+	parameter PC_BITS = 16
 	)
 	(
-	input clk_i, rst_n_i, halt_i, flush_i, stall_i, cache_en_i, mem_write_i, wb_sel_i, reg_write_i
-	input [PC_BITS-1:0] result_i, /* TODO: figure if this is needed: read_data_i*/, write_data_i,
-	output reg_write_o, wb_sel_o
-	output [PC_BITS-1:0] read_data_o, result_o
+	input clk_i, rst_n_i, halt_i, flush_i, stall_i, cache_en_i, mem_write_i, wb_sel_i, reg_write_i,
+	input [PC_BITS-1:0] result_i /*, TODO: figure if this is needed: read_data_i*/, write_data_i,
+	output logic reg_write_o, wb_sel_o,
+	output logic [PC_BITS-1:0] read_data_o, result_o
 	); 
 	
 	//intermediate signals
@@ -57,6 +57,7 @@ module memory
 		.write_read_i(mem_write_i),		
 		.addr_i(result_o), 
 		.data_i(write_data), 
-		.data_o(read_data_o);
+		.data_o(read_data_o)
+	);
 	
 endmodule
