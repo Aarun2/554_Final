@@ -1,29 +1,15 @@
 module control
 	(
 	 input [6:0] op_i,
-	 output imm_sel_o, [3:0] alu_op_o, [1:0] branch_type_o, 
-	 [1:0] wb_sel_o, logic reg_write_enable_o, logic mem_write_enable_o
+	 output imm_sel_o, [3:0] alu_op_o, [1:0] branch_type_o, [1:0] wb_sel_o, 
+	 logic reg_write_enable_o, mem_write_enable_o, tpu_start_o, 
+	 logic tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C 
 	);
-
-	/*
-	wire tpu_instr;
-	
-	assign tpu_instr = op_i[6] & ~op_i[5] & op_i[4];
-
-	assign start = tpu_instr & op_i[3];
-	
-	assign WrEnA = tpu_instr & op_i[0];
-	
-	assign WrEnB = tpu_instr & op_i[1];
-	
-	assign WrEnC = tpu_instr & op_i[2];
-	
-	*/
 
 	// Always Add for loads and stores //
 	assign alu_op_o = wb_sel_o[0] ? 4'h1 : op_i[3:0];
 	
-	// branch_type_o or B instruction if 011                    //
+	// branch_type_o or B instruction if 011             //
 	// All ones indicates a Jr instruction               //
 	// All ones and last bit 0 indicates a J instruction //
 	assign branch_type_o = (~op_i[6] & op_i[5] & op_i[4]) ? 2'b01 : (op_i[6] & op_i[5] & op_i[4] & op_i[3] & op_i[2] & op_i[1]) ? {1'b1, op_i[0]} : 2'b00;
@@ -40,13 +26,17 @@ module control
 	// May have to reg_write_enable_o TPU data to reg //
 	assign wb_sel_o[1] = (op_i[6] & ~op_i[5] & op_i[4]);
 	
-	always begin
+	always_comb begin
 		mem_write_enable_o = 0;
 		reg_write_enable_o = 0;
+		tpu_start_o = 0;
+		tpu_write_enable_A = 0;
+		tpu_write_enable_B = 0;
+		tpu_write_enable_C = 0;
 		
 		casex(op_i)
 			7'h00 : begin // NOP
-				reg_write_enable_o = 0;
+				// All defaults
 			end
 			7'h01 : begin // add
 				reg_write_enable_o = 1;
@@ -109,44 +99,43 @@ module control
 				reg_write_enable_o = 1;
 			end
 			7'h21 : begin // sw
-				reg_write_enable_o = 0;
 				mem_write_enable_o = 1;
 			end
 			7'h3C : begin // beq
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			7'h3D : begin // bne
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			7'h3E : begin // blt
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			7'h3F : begin // bgt
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			7'h50 : begin // matmul
-				reg_write_enable_o = 0;
+				tpu_start_o = 1;
 			end
 			7'h51 : begin // lam
-				reg_write_enable_o = 0;
+				tpu_write_enable_A = 1;
 			end
 			7'h52 : begin // lbm
-				reg_write_enable_o = 0;
+				tpu_write_enable_B = 1;
 			end
 			7'h53 : begin // lacc
-				reg_write_enable_o = 0;
+				tpu_write_enable_C = 1;
 			end
 			7'h54 : begin // racc
-				reg_write_enable_o = 0;
+				reg_write_enable_o = 1;
 			end
 			7'h7E : begin // j
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			7'h7F : begin // jr
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 			default : begin
-				reg_write_enable_o = 0;
+				// All Defaults
 			end
 		endcase
 	end

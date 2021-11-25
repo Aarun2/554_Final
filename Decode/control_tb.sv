@@ -3,11 +3,13 @@
 // Uses Verification //
 //   Constructs      //
 ///////////////////////
+/*
 class myPacket;
 	randc bit [6:0] op_i;
 	// to loop over random op_i's is any order
 	// also won't repeat
 endclass
+*/
 
 module control_tb();
 
@@ -16,9 +18,36 @@ module control_tb();
 	logic [6:0] op_i;
 	logic [3:0] alu_op_o;
 	logic [1:0] branch_type_o, wb_sel_o;
-	logic reg_write_enable_o, imm_sel_o, mem_write_enable_o;
+	logic reg_write_enable_o, imm_sel_o, mem_write_enable_o, tpu_start_o,  tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C;
 
 	control ctrl_DUT (.*);
+	
+	/////////////////////////////
+	// Functions to replicate  //
+	// signal checks           //
+	/////////////////////////////
+	
+	function R_instr;
+		R_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || 
+				   wb_sel_o !== 2'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+				   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
+	endfunction
+	
+	function I_instr;
+		I_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || 
+				   wb_sel_o !== 2'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 ||
+				   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
+	endfunction
+	
+	function B_instr;
+		B_instr = (branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0 ||
+				   mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || tpu_write_enable_A !== 1'b0 || 
+				   tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
+	endfunction
+
+	function TPU_instr;
+		TPU_instr = (branch_type_o !== 2'h0 || mem_write_enable_o !== 1'b0);
+	endfunction
 	
 	/////////////////////////////
 	// Below are tasks that    //
@@ -35,7 +64,8 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0)
+				while (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -52,7 +82,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h1 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -69,7 +99,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h2 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h2 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -86,7 +116,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h3 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h3 ||R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -103,7 +133,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h4 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h4 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -120,7 +150,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h5 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h5 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -137,7 +167,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h6 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h6 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -154,7 +184,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h7 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h7 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -171,7 +201,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h8 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h8 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -188,7 +218,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h9 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h9 || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -205,7 +235,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hA || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'hA || R_instr)
 					#1;
 				disable timeout1;
 			end
@@ -222,7 +252,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h1 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -239,7 +269,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h3 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h3 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -256,7 +286,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h4 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h4 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -273,7 +303,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h5 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h5 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -290,7 +320,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h6 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h6 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -307,7 +337,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h7 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h7 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -324,7 +354,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h8 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h8 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -341,7 +371,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h9 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'h9 || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -358,7 +388,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hB || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
+				while (alu_op_o !== 4'hB || I_instr)
 					#1;
 				disable timeout1;
 			end
@@ -375,7 +405,9 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b1)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || 
+				       wb_sel_o !== 2'b1 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -392,7 +424,9 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b1)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b1 ||
+				       mem_write_enable_o !== 1'b1 || tpu_start_o !== 1'b0 || tpu_write_enable_A !== 1'b0 || 
+					   tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -409,7 +443,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hC || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
+				while (alu_op_o !== 4'hC || B_instr)
 					#1;
 				disable timeout1;
 			end
@@ -426,7 +460,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hD || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
+				while (alu_op_o !== 4'hD || B_instr)
 					#1;
 				disable timeout1;
 			end
@@ -443,7 +477,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hE || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
+				while (alu_op_o !== 4'hE || B_instr)
 					#1;
 				disable timeout1;
 			end
@@ -460,7 +494,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op_o !== 4'hF || branch_type_o !== 2'b01 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
+				while (alu_op_o !== 4'hF || B_instr)
 					#1;
 				disable timeout1;
 			end
@@ -478,7 +512,8 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (branch_type_o !== 2'b10 || reg_write_enable_o !== 1'b0)
+				while (branch_type_o !== 2'b10 || reg_write_enable_o !== 1'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -495,12 +530,103 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (branch_type_o !== 2'b11 || reg_write_enable_o !== 1'b0)
+				while (branch_type_o !== 2'b11 || reg_write_enable_o !== 1'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
 		join
 		$display("jr test passed");
+	endtask
+	 
+	task wait_matmul(int repeat_tim);
+		$display("matmul test");
+		fork
+			begin : timeout1
+				repeat(repeat_tim) #1;
+				$display("ERROR Timed out waiting for correct matmul signals");
+				$stop();
+			end
+			begin
+				while (reg_write_enable_o !== 1'b0 || tpu_start_o !== 1'b1 || TPU_instr || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
+					#1;
+				disable timeout1;
+			end
+		join
+		$display("matmul test passed");
+	endtask
+	
+	task wait_lam(int repeat_tim);
+		$display("lam test");
+		fork
+			begin : timeout1
+				repeat(repeat_tim) #1;
+				$display("ERROR Timed out waiting for correct lam signals");
+				$stop();
+			end
+			begin
+				while (reg_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || TPU_instr || 
+					   tpu_write_enable_A !== 1'b1 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
+					#1;
+				disable timeout1;
+			end
+		join
+		$display("lam test passed");
+	endtask
+	
+	task wait_lbm(int repeat_tim);
+		$display("lbm test");
+		fork
+			begin : timeout1
+				repeat(repeat_tim) #1;
+				$display("ERROR Timed out waiting for correct lbm signals");
+				$stop();
+			end
+			begin
+				while (reg_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || TPU_instr || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b1 || tpu_write_enable_C !== 1'b0)
+					#1;
+				disable timeout1;
+			end
+		join
+		$display("lbm test passed");
+	endtask
+	
+	task wait_lacc(int repeat_tim);
+		$display("lacc test");
+		fork
+			begin : timeout1
+				repeat(repeat_tim) #1;
+				$display("ERROR Timed out waiting for correct lacc signals");
+				$stop();
+			end
+			begin
+				while (reg_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || TPU_instr || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b1)
+					#1;
+				disable timeout1;
+			end
+		join
+		$display("lacc test passed");
+	endtask
+	
+	task wait_racc(int repeat_tim);
+		$display("racc test");
+		fork
+			begin : timeout1
+				repeat(repeat_tim) #1;
+				$display("ERROR Timed out waiting for correct racc signals");
+				$stop();
+			end
+			begin
+				while (reg_write_enable_o !== 1'b1 || tpu_start_o !== 1'b0 || TPU_instr || wb_sel_o !== 2'd2 ||
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
+					#1;
+				disable timeout1;
+			end
+		join
+		$display("racc test passed");
 	endtask
 	
 	task wait_undef(int repeat_tim);
@@ -514,7 +640,8 @@ module control_tb();
 			end
 			begin // branch_type_o should not be 2 or 3 as then it's a jump
 			// otherwise alu decides and will be false for undefined opcodes
-				while (branch_type_o[1] === 1'b1 || reg_write_enable_o !== 1'b0)
+				while (branch_type_o[1] !== 1'b0 || reg_write_enable_o !== 1'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -603,19 +730,19 @@ module control_tb();
 				wait_bgt(TIMEOUT_VAL);
 			end
 			7'h50 : begin // matmul
-				
+				wait_matmul(TIMEOUT_VAL);
 			end
 			7'h51 : begin // lam
-
+				wait_lam(TIMEOUT_VAL);
 			end
 			7'h52 : begin // lbm
-				
+				wait_lbm(TIMEOUT_VAL);
 			end
 			7'h53 : begin // lacc
-				
+				wait_lacc(TIMEOUT_VAL);
 			end
 			7'h54 : begin // racc
-				
+				wait_racc(TIMEOUT_VAL);
 			end
 			7'h7E : begin // j
 				wait_j(TIMEOUT_VAL);
@@ -630,18 +757,18 @@ module control_tb();
 	endtask	
 
 	initial begin
+		/*
 		myPacket pkt;
 		pkt = new();
+		*/
 		
 		// Test 1: Check 500 random exhaustive opcode checks
 		for (int i = 0; i < 500; i++) begin
     			for (int i = 0; i < 2**7; i++) begin
-    				pkt.randomize();			
-    				op_i = pkt.op_i;
+    				op_i = $random();
     				call_wait();
     			end
 		end
-		
 		$display("Yahoo! All tests Passed");
 		$stop();
 	end
