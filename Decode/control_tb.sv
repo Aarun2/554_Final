@@ -4,19 +4,21 @@
 //   Constructs      //
 ///////////////////////
 class myPacket;
-	randc bit [6:0] op;
-	// to loop over random op's is any order
+	randc bit [6:0] op_i;
+	// to loop over random op_i's is any order
 	// also won't repeat
 endclass
 
 module control_tb();
 
-	logic [6:0] op;
-	logic [3:0] alu_op;
-	logic [1:0] branch;
-	logic write, imm_sel, wb_sel;
+	localparam TIMEOUT_VAL = 100;
 
-	control ctrl_DUT (.op(op), .alu_op(alu_op), .branch(branch), .write(write), .imm_sel(imm_sel), .wb_sel(wb_sel));
+	logic [6:0] op_i;
+	logic [3:0] alu_op_o;
+	logic [1:0] branch_type_o, wb_sel_o;
+	logic reg_write_enable_o, imm_sel_o, mem_write_enable_o;
+
+	control ctrl_DUT (.*);
 	
 	/////////////////////////////
 	// Below are tasks that    //
@@ -33,7 +35,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (branch !== 2'h0 || write !== 1'b0)
+				while (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -50,7 +52,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h1 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -67,7 +69,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h2 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h2 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -84,7 +86,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h3 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h3 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -101,7 +103,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h4 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h4 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -118,7 +120,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h5 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h5 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -135,7 +137,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h6 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h6 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -152,7 +154,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h7 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h7 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -169,7 +171,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h8 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h8 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -186,7 +188,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h9 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h9 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -203,7 +205,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hA || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b0 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'hA || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -220,7 +222,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h1 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -237,7 +239,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h3 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h3 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -254,7 +256,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h4 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h4 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -271,7 +273,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h5 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h5 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -288,7 +290,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h6 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h6 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -305,7 +307,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h7 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h7 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -322,7 +324,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h8 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h8 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -339,7 +341,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h9 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'h9 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -356,7 +358,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hB || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b0)
+				while (alu_op_o !== 4'hB || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b0)
 					#1;
 				disable timeout1;
 			end
@@ -373,7 +375,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h1 || branch !== 2'h0 || write !== 1'b1 || imm_sel !== 1'b1 || wb_sel !== 1'b1)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || wb_sel_o !== 2'b1)
 					#1;
 				disable timeout1;
 			end
@@ -390,7 +392,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'h1 || branch !== 2'h0 || write !== 1'b0 || imm_sel !== 1'b1)
+				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b1)
 					#1;
 				disable timeout1;
 			end
@@ -407,7 +409,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hC || branch !== 2'h1 || write !== 1'b0 || imm_sel !== 1'b0)
+				while (alu_op_o !== 4'hC || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -424,7 +426,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hD || branch !== 2'h1 || write !== 1'b0 || imm_sel !== 1'b0)
+				while (alu_op_o !== 4'hD || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -441,7 +443,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hE || branch !== 2'h1 || write !== 1'b0 || imm_sel !== 1'b0)
+				while (alu_op_o !== 4'hE || branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -458,7 +460,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (alu_op !== 4'hF || branch !== 2'b01 || write !== 1'b0 || imm_sel !== 1'b0)
+				while (alu_op_o !== 4'hF || branch_type_o !== 2'b01 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -472,11 +474,11 @@ module control_tb();
 			begin : timeout1
 				repeat(repeat_tim) #1;
 				$display("ERROR Timed out waiting for correct j signals");
-    			$display("%h, %h", branch, write);	
+    			$display("%h, %h", branch_type_o, reg_write_enable_o);	
 				$stop();
 			end
 			begin
-				while (branch !== 2'b10 || write !== 1'b0)
+				while (branch_type_o !== 2'b10 || reg_write_enable_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -493,7 +495,7 @@ module control_tb();
 				$stop();
 			end
 			begin
-				while (branch !== 2'b11 || write !== 1'b0)
+				while (branch_type_o !== 2'b11 || reg_write_enable_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
@@ -502,103 +504,103 @@ module control_tb();
 	endtask
 	
 	task wait_undef(int repeat_tim);
-    	$display("Undefined Opcode 0x%h test", op);
+    	$display("Undefined Opcode 0x%h test", op_i);
 		fork
 			begin : timeout1
 				repeat(repeat_tim) #1;
 				$display("ERROR Timed out waiting for undefined opcode signals");
-				$display("%b, %b", branch, write);
+				$display("%b, %b", branch_type_o, reg_write_enable_o);
 				$stop();
 			end
-			begin // branch should not be 2 or 3 as then it's a jump
+			begin // branch_type_o should not be 2 or 3 as then it's a jump
 			// otherwise alu decides and will be false for undefined opcodes
-				while (branch[1] === 1'b1 || write !== 1'b0)
+				while (branch_type_o[1] === 1'b1 || reg_write_enable_o !== 1'b0)
 					#1;
 				disable timeout1;
 			end
 		join
-		$display("Undefined Opcode 0x%h test passed", op);
+		$display("Undefined Opcode 0x%h test passed", op_i);
 	endtask
 	
 	task call_wait();
-    	case(op)
+    	case(op_i)
             	7'h00 : begin // NOP
-				wait_nop(100);
+				wait_nop(TIMEOUT_VAL);
 			end
 			7'h01 : begin // add
-				wait_add(100);
+				wait_add(TIMEOUT_VAL);
 			end
 			7'h02 : begin // sub
-				wait_sub(100);
+				wait_sub(TIMEOUT_VAL);
 			end
 			7'h03 : begin // xor
-				wait_xor(100);
+				wait_xor(TIMEOUT_VAL);
 			end
 			7'h04 : begin // or
-				wait_or(100);
+				wait_or(TIMEOUT_VAL);
 			end
 			7'h05 : begin // and
-				wait_and(100);
+				wait_and(TIMEOUT_VAL);
 			end
 			7'h06 : begin // sll
-				wait_sll(100);
+				wait_sll(TIMEOUT_VAL);
 			end
 			7'h07 : begin // srl
-				wait_srl(100);
+				wait_srl(TIMEOUT_VAL);
 			end
 			7'h08 : begin // sra
-				wait_sra(100);
+				wait_sra(TIMEOUT_VAL);
 			end
 			7'h09 : begin // slt
-				wait_slt(100);
+				wait_slt(TIMEOUT_VAL);
 			end
 			7'h0A : begin // mul
-				wait_mul(100);
+				wait_mul(TIMEOUT_VAL);
 			end
 			7'h11 : begin // addi
-				wait_addi(100);
+				wait_addi(TIMEOUT_VAL);
 			end
 			7'h13 : begin // xori
-				wait_xori(100);
+				wait_xori(TIMEOUT_VAL);
 			end
 			7'h14 : begin // ori
-				wait_ori(100);
+				wait_ori(TIMEOUT_VAL);
 			end
 			7'h15 : begin // andi
-				wait_andi(100);
+				wait_andi(TIMEOUT_VAL);
 			end
 			7'h16 : begin // slli
-				wait_slli(100);
+				wait_slli(TIMEOUT_VAL);
 			end
 			7'h17 : begin // srli
-				wait_srli(100);
+				wait_srli(TIMEOUT_VAL);
 			end
 			7'h18 : begin // srai
-				wait_srai(100);
+				wait_srai(TIMEOUT_VAL);
 			end
 			7'h19 : begin // slti
-				wait_slti(100);
+				wait_slti(TIMEOUT_VAL);
 			end
 			7'h1B : begin // lui
-				wait_lui(100);
+				wait_lui(TIMEOUT_VAL);
 			end
 			7'h20 : begin // lw
-				wait_lw(100);
+				wait_lw(TIMEOUT_VAL);
 			end
 			7'h21 : begin // sw
-				wait_sw(100);
+				wait_sw(TIMEOUT_VAL);
 			end
 			7'h3C : begin // beq
-				wait_beq(100);
+				wait_beq(TIMEOUT_VAL);
 			end
 			7'h3D : begin // bne
-				wait_bne(100);
+				wait_bne(TIMEOUT_VAL);
 			end
 			7'h3E : begin // blt
-				wait_blt(100);
+				wait_blt(TIMEOUT_VAL);
 			end
 			7'h3F : begin // bgt
-				wait_bgt(100);
+				wait_bgt(TIMEOUT_VAL);
 			end
 			7'h50 : begin // matmul
 				
@@ -616,13 +618,13 @@ module control_tb();
 				
 			end
 			7'h7E : begin // j
-				wait_j(100);
+				wait_j(TIMEOUT_VAL);
 			end
 			7'h7F : begin // jr
-				wait_jr(100);
+				wait_jr(TIMEOUT_VAL);
 			end
 			default : begin
-				wait_undef(100);
+				wait_undef(TIMEOUT_VAL);
 			end
         	endcase
 	endtask	
@@ -633,9 +635,9 @@ module control_tb();
 		
 		// Test 1: Check 500 random exhaustive opcode checks
 		for (int i = 0; i < 500; i++) begin
-    			for (int i =0 ; i < 2**7; i++) begin
+    			for (int i = 0; i < 2**7; i++) begin
     				pkt.randomize();			
-    				op = pkt.op;
+    				op_i = pkt.op_i;
     				call_wait();
     			end
 		end

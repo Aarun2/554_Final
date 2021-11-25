@@ -1,28 +1,24 @@
-module rf(clk, rst_n, read1regsel, read2regsel, write, writeregsel, writedata, read1data, read2data);
-	
-	input clk, rst_n;
-	input [4:0] read1regsel, read2regsel;
-	input [4:0] writeregsel;
-	input [31:0] writedata;
-	input write;
-	
-	output [31:0] read1data;
-	output [31:0] read2data;
+module rf
+	(
+	 input clk_i, rst_n_i, write_enable_i, [4:0] read_reg1_sel_i, 
+	 [4:0] read_reg2_sel_i, [4:0] write_reg_sel_i, [31:0] write_data_i, 
+	 output [31:0] read_data1_o, [31:0] read_data2_o
+	);
 	
 	reg [31:0] mem [31:0];
 	
 	initial	
 		$readmemh("test.txt", mem);
 		
-	assign read1data = write ? (writeregsel == read1regsel) ? writedata : mem[read1regsel] : mem[read1regsel];
-	assign read2data = write ? (writeregsel == read2regsel) ? writedata : mem[read2regsel] : mem[read2regsel];
+	assign read_data1_o = write_enable_i ? (write_reg_sel_i == read_reg1_sel_i) ? write_data_i : mem[read_reg1_sel_i] : mem[read_reg1_sel_i];
+	assign read_data2_o = write_enable_i ? (write_reg_sel_i == read_reg2_sel_i) ? write_data_i : mem[read_reg2_sel_i] : mem[read_reg2_sel_i];
 	
-	always_ff @(posedge clk, negedge rst_n)
+	always_ff @(posedge clk_i, negedge rst_n_i)
 		for (int i = 0; i < 32; i++) begin
-			if (!rst_n)
+			if (!rst_n_i)
 				mem[i] <= 0;
-			else if (write && (writeregsel == i))
-				mem[i] <= writedata;
+			else if (write_enable_i && (write_reg_sel_i == i))
+				mem[i] <= write_data_i;
 		end
 			
 endmodule

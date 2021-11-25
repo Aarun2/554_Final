@@ -1,29 +1,25 @@
-module decode #(parameter PC_BITS = 16) (clk, rst_n, flush, write_wb, writeregsel_wb, instr, writedata, pc_d, read1data, 
-										 read2data, imm_ext, alu_op, pc, imm_sel, wb_sel, m_write, write, branch, writeregsel);
-
-	input clk, rst_n, flush, write_wb;
-	input [4:0] writeregsel_wb;
-	input [31:0] instr, writedata;
-	input [PC_BITS-1:0] pc_d;
+module decode #(parameter PC_BITS = 16) 
+	(
+	 input clk_i, rst_n_i, flush_i, reg_write_enable_i, 
+	 [4:0] write_reg_sel_i, [31:0] instr_i, [3:0] write_data_i, [31:0] pc_i, 
+	 output logic [31:0] read_data_1_o, [31:0] read_data_2_o, [31:0] imm_o, 
+	 [3:0] alu_op_o, imm_sel_o, [1:0] wb_sel_o, reg_write_enable_o, 
+	 mem_write_enable_o, [1:0] branch_type_o, [4:0] write_reg_sel_o, 
+	 [31:0] pc_o, write_enable_A_o, write_enable_B_o, write_enable_C_o, start_o,
+	 [4:0] col_o, [4:0] row_o, [4:0] d_op2_reg_o, [4:0] d_op1_reg_o
+	);
 	
-	output logic [31:0] read1data, read2data;
-	output logic [31:0] imm_ext;
-	output logic [3:0] alu_op;
-	output logic imm_sel, wb_sel, write, m_write;
-	output logic [1:0] branch;
-	output logic [4:0] writeregsel;
-	output logic [PC_BITS-1:0] pc;
 	
-	logic write_d, imm_sel_d, wb_sel_d, m_write_d;
+	logic write_d, imm_sel_d, m_write_d;
 	logic [14:0] imm;
 	logic [31:0] imm_ext_d, read1data_d, read2data_d;
 	logic [3:0] alu_op_d;
-	logic [1:0] branch_d;
+	logic [1:0] branch_d, wb_sel_d;
 	
-	rf reg_file (.clk(clk), .rst_n(rst_n), .read1regsel(instr[19:15]), .read2regsel(instr[14:10]), .write(write_wb), 
-			     .writeregsel(writeregsel_wb), .writedata(writedata), .read1data(read1data_d), .read2data(read2data_d));
+	rf reg_file (.clk_i(clk_i), .rst_n_i(rst_n_i), .read_reg1_sel_i(instr[19:15]), .read_reg2_sel_i(instr[14:10]), .write_enable_i(reg_write_enable_i), 
+			     .write_reg_sel_i(write_reg_sel_i), .write_data_i(write_data_i), .read_data1_o(read_data_1_d), .read_data2_o(read_data_2_d));
 				 
-	control control_inst (.op(instr[31:25]), .alu_op(alu_op_d), .branch(branch_d), .write(write_d), .imm_sel(imm_sel_d),
+	control control_inst (.op(instr_i[31:25]), .alu_op(alu_op_d), .branch(branch_d), .write(write_d), .imm_sel(imm_sel_d),
 						  .wb_sel(wb_sel_d), .m_write(m_write_d));
 					 
 	extend_15 extension (.imm(imm), .imm_ext(imm_ext_d));
@@ -37,14 +33,14 @@ module decode #(parameter PC_BITS = 16) (clk, rst_n, flush, write_wb, writeregse
 	always_ff @(posedge clk)
 		pc <= pc_d;
 	
-	always_ff @(posedge clk)
+	always_ff @(posedge clk, negedge rst_n)
 		writeregsel <= instr[24:20];
 	
 	always_ff @(posedge clk)
-		read1data <=  read1data_d;
+		read_data_1_o <=  read_data_1_d;
 	
 	always_ff @(posedge clk)
-		read2data <= read2data_d;
+		read_data_2_o <= read_data_2_o;
 	
 	always_ff @(posedge clk)
 		imm_ext <= imm_ext_d;
@@ -58,24 +54,24 @@ module decode #(parameter PC_BITS = 16) (clk, rst_n, flush, write_wb, writeregse
 	always_ff @(posedge clk)
 		wb_sel <= wb_sel_d;
 		
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, negedge rst_n_i)
+		if (!rst_n_i)
 			write <= 0;
 		else if (flush)
 			write <= 0;
 		else
 			write <= write_d;
 	
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, negedge rst_n_i)
+		if (!rst_n_i)
 			m_write <= 0;
 		else if (flush)
 			m_write <= 0;
 		else
 			m_write <= m_write_d;
 	
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, negedge rst_n_i)
+		if (!rst_n_i)
 			branch <= 0;
 		else if (flush)
 			branch <= 0;
