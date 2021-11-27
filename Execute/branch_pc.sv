@@ -1,23 +1,24 @@
-module branch_pc #(parameter PC_BITS = 16) (pc_in, imm, read1data, branch_dec, branch, pc);
-
-	input [PC_BITS-1:0] pc_in;
-	input branch_dec;
-	input [31:0] imm, read1data;
-	input [1:0] branch;
+module branch_pc 
+	(
+	input [31:0] pc_i, imm_i, read_data1_i,
+	input branch_dec_i,
+	input [1:0] branch_type_i,
+	output logic [31:0] pc_o
+	);
 	
-	output logic [PC_BITS-1:0] pc;
-	
-	always begin
-		case (branch)
-			2'b11 : pc = read1data; // JR
-			2'b10 : pc = pc + imm; // J
+	always_comb begin
+		pc_o = pc_i;
+		
+		case (branch_type_i)
+			2'b11 : pc_o = read_data1_i; // JR
+			2'b10 : pc_o = pc_i + imm_i; // J
 			2'b01 : // Br
-				if (branch_dec)
-					pc = pc + imm;
+				if (branch_dec_i)
+					pc_o = pc_i + imm_i;
 				else
-					pc = pc;
+					pc_o = pc_i;
 			default : 
-				pc = pc + imm;
+				pc_o = pc_i;
 		endcase
 	end
 

@@ -1,65 +1,95 @@
-module execute #(parameter PC_BITS = 16) (clk, rst_n, flush, writeregsel_d, read1data, read2data, imm, alu_op, pc_d, imm_sel,
-                                          wb_sel_d, write_d, m_write_d, branch, result, wb_sel, write, m_write, writeregsel, pc);
-			   
-	input clk, rst_n, flush;
-	input [31:0] read1data, read2data, imm;
-	input [3:0] alu_op;
-	input imm_sel, wb_sel_d, write_d, m_write_d;
-	input [1:0] branch;
-	input [4:0] writeregsel_d;
-	input [PC_BITS-1:0] pc_d;
+module execute 
+	(	   
+	input clk_i, rst_n_i, flush_i, stall_i,
+	input [31:0] read_data1_i, read_data2_i, imm_i, pc_i, forward_data_i,
+	input [3:0] alu_op_i,
+	input imm_sel_i, wb_sel_i, reg_write_enable_i, mem_write_enable_i,
+	input [1:0] branch_type_i, forward_en_i,
+	input [4:0] write_reg_sel_i, col_i, row_i,
+	input start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i,	
 	
-	output logic [31:0] result;
-	output logic wb_sel, write, m_write;
-	output logic [4:0] writeregsel;
-	output logic [PC_BITS-1:0] pc;
+	output logic [31:0] result_o, pc_o, cout_o, read_data2_o,
+	output logic wb_sel_o, reg_write_enable_o, mem_write_enable_o,
+	output logic [4:0] write_reg_sel_o,
+	output [4:0] e_dest_reg_o,
+	output e_dest_reg_en_o, e_valid_o
+	);
 	
-	wire [31:0] b, result_d;
-	wire [PC_BITS-1:0] pc_out;
-	wire branch_dec;
+	// forwarding
 	
-	assign b = (imm_sel) ? imm : read2data; 
+	logic [31:0] b_i, result_d, read_data1_d, read_data2_d;
+	logic [31:0] pc_d, cout_d;
+	logic branch_dec, done_d;
 	
-	alu i_alu (.a(read1data), .b(b), .alu_op(alu_op), .result(result_d), .branch(branch_dec));
+	assign read_data1_d = (forward_en_i == 2'd1) ? forward_data_i : read_data1_i;
+	assign read_data2_d = (forward_en_i == 2'd2) ? forward_data_i : read_data2_i;
 	
-	branch_pc #(.PC_BITS(PC_BITS)) br_pc (.pc_in(pc_d), .imm(imm), .read1data(read1data), .branch_dec(branch_dec), 
-	                                      .branch(branch), .pc(pc_out));
+	assign b_i = (imm_sel_i) ? imm_i : read_data2_d; 
+	
+	alu i_alu (.a_i(read_data1_d), .b_i(b_i), .alu_op_i(alu_op_i), .result_o(result_d), .branch_o(branch_dec));
+	
+	branch_pc i_branch_pc (.pc_i(pc_i), .imm_i(imm_i), .read_data1_i(read_data1_d), .branch_dec_i(branch_dec), 
+	                                      .branch_type_i(branch_type_i), .pc_o(pc_d));
+										  
+	tpuv1 i_tpuv1 (.clk(clk_i), .rst_n(rst_n_i), .start(start_i), .WrEnA(write_enable_A_i), .WrEnB(write_enable_B_i), .WrEnC(write_enable_C_i),
+				   .col(col_i), .row(row_i), .dataIn(read_data1_d), .dataOut(cout_d), .done(done_d));
+	
+	assign e_valid_o = start_i ? done_d : 1'b1;
+	
+	assign e_dest_reg_o = write_reg_sel_i;
+	
+	assign e_dest_reg_en_o = reg_write_enable_i;
 	
 	//////////////////
 	// EX/MEM Flops //
 	//////////////////
 	
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
-			pc <= 0;
-		else if (flush)
-			pc <= pc_d;
-		else
-			pc <= pc_out;
-			
-	always_ff @(posedge clk)
-		writeregsel <=  writeregsel_d;
+	// Update Key Signals //
+	always_ff @(posedge clk_i, negedge rst_n_i)
+		if (!rst_n_i) begin
+			pc_o <= 0;
+			reg_write_enable_o <= 0;
+			mem_write_enable_o <= 0;
+		end
+		else if (flush_i) begin
+			pc_o <= pc_i;
+			reg_write_enable_o <= 0;
+			mem_write_enable_o <= 0;
+		end
+		else if (stall_i) begin
+			pc_o <= pc_o;
+			reg_write_enable_o <= reg_write_enable_o;
+			mem_write_enable_o <= mem_write_enable_o;
+		end
+		else begin
+			pc_o <= pc_d;
+			reg_write_enable_o <= reg_write_enable_i;
+			mem_write_enable_o <= mem_write_enable_i;
+		end
 	
-	always_ff @(posedge clk)
-		result <= result_d;
-			
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
-			write <= 0;
-		else if (flush)
-			write <= 0;
-		else
-			write <= write_d;
-	
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
-			m_write <= 0;
-		else if (flush)
-			m_write <= 0;
-		else
-			m_write <= m_write_d;
-	
-	always_ff @(posedge clk)
-		wb_sel <= wb_sel_d;
+	// Don't need to reset some signals //
+	// Flush to default value 			//
+	always_ff @(posedge clk_i)
+		if (flush_i) begin
+			result_o <= result_d;
+			write_reg_sel_o <=  write_reg_sel_i;
+			wb_sel_o <= wb_sel_i;
+			cout_o <= cout_d;
+			read_data2_o <= read_data2_d;
+		end
+		else if (stall_i) begin
+			result_o <= result_o;
+			write_reg_sel_o <=  write_reg_sel_o;
+			wb_sel_o <= wb_sel_o;
+			cout_o <= cout_o;
+			read_data2_o <= read_data2_o;
+		end
+		else begin
+			result_o <= result_d;
+			write_reg_sel_o <=  write_reg_sel_i;
+			wb_sel_o <= wb_sel_i;
+			cout_o <= cout_d;
+			read_data2_o <= read_data2_d;
+		end
 
 endmodule
