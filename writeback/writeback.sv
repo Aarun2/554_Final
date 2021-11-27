@@ -1,13 +1,19 @@
-module writeback(clk, rst_n, flush, wb_sel, write_d, result, mem_data, writedata, write);
+module writeback
+  (
+  input flush_i, stall_i, reg_wren_i, forward_en_i,
+  input [1:0] wb_sel_i,
+  input [31:0] result_i, mem_data_i, cout_i, forward_data_i,
+  output [31:0] reg_wrdata_o,
+  output reg_wren_o,
+  output [4:0] w_dest_reg_o
+   ); 
+
+  logic [31:0] result_d;
   
-  input clk, rst_n, flush, wb_sel, write_d;
-  input [31:0] result, mem_data;
+  assign reg_wren_o =  flush_i ? 0 : reg_wren_i;
   
-  output logic [31:0] writedata;
-  output logic write;
-    
-  assign write =  flush ? 0 : write_d;
+  assign result_d = (forward_en_i) ? forward_data_i : result_i;
   
-  assign writedata = (wb_sel) ? mem_data : result;
+  assign reg_wrdata_o = (wb_sel_i == 2'b00) ? result_i : (wb_sel_i == 2'b01) ? mem_data_i : (wb_sel_i == 2'b10) ? cout_i : result_d;
 
 endmodule
