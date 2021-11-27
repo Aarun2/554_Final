@@ -1,9 +1,11 @@
 module control
 	(
 	 input [6:0] op_i,
-	 output imm_sel_o, [3:0] alu_op_o, [1:0] branch_type_o, [1:0] wb_sel_o, 
-	 logic reg_write_enable_o, mem_write_enable_o, tpu_start_o, 
-	 logic tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C 
+	 output imm_sel_o, 
+	 output [3:0] alu_op_o, 
+	 output [1:0] branch_type_o, wb_sel_o, 
+	 output logic reg_write_enable_o, mem_write_enable_o, tpu_start_o, 
+	 output logic tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C 
 	);
 
 	// Always Add for loads and stores //

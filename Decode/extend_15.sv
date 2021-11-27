@@ -1,8 +1,8 @@
-module extend_15(imm, imm_ext);
+module extend_15
+	(
+	 input imm_i, 
+	 output imm_ext_i);
 
-	input [14:0] imm;
-    output [31:0] imm_ext;
-
-    assign imm_ext = {{17{imm[14]}}, imm};
+    assign imm_ext_i = {{17{imm[14]}}, imm_i};
 
 endmodule
