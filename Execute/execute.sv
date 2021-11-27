@@ -31,7 +31,7 @@ module execute
 	branch_pc i_branch_pc (.pc_i(pc_i), .imm_i(imm_i), .read_data1_i(read_data1_d), .branch_dec_i(branch_dec), 
 	                                      .branch_type_i(branch_type_i), .pc_o(pc_d));
 										  
-	tpuv1 i_tpuv1 (.clk(clk_i), .rst_n(rst_n_i), .start(start_i), .WrEnA(write_enable_A_i), .WrEnB(write_enable_B_i), .WrEnC(write_enable_C_i),
+	tpuv1 #(.BITS_AB(16), .BITS_C(32), .DIM(32)) i_tpuv1 (.clk(clk_i), .rst_n(rst_n_i), .start(start_i), .WrEnA(write_enable_A_i), .WrEnB(write_enable_B_i), .WrEnC(write_enable_C_i),
 				   .col(col_i), .row(row_i), .dataIn(read_data1_d), .dataOut(cout_d), .done(done_d));
 	
 	assign e_valid_o = start_i ? done_d : 1'b1;
