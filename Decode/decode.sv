@@ -8,7 +8,8 @@ module decode
 	 output logic [31:0] read_data1_o, read_data2_o, imm_o, pc_o,
 	 output logic [3:0] alu_op_o, 
 	 output logic [1:0] wb_sel_o, branch_type_o, 
-	 output logic [4:0] write_reg_sel_o, col_o, row_o, d_op2_reg_o, d_op1_reg_o
+	 output logic [4:0] write_reg_sel_o, col_o, row_o, 
+	 output [4:0] d_op2_reg_o, d_op1_reg_o
 	);
 	
 	logic write_d, imm_sel_d, m_write_d;
@@ -16,7 +17,7 @@ module decode
 	logic [31:0] imm_ext_d, read_data1_d, read_data2_d;
 	logic [3:0] alu_op_d;
 	logic [1:0] branch_d, wb_sel_d;
-	logic [4:0] col_d, row_d, d_op2_reg_d, d_op1_reg_d;
+	logic [4:0] col_d, row_d;
 	logic tpu_start_d, tpu_wren_A_d, tpu_wren_B_d, tpu_wren_C_d;
 	
 	rf reg_file (.clk_i(clk_i), .rst_n_i(rst_n_i), .read_reg1_sel_i(instr_i[19:15]), .read_reg2_sel_i(instr_i[14:10]), .write_enable_i(reg_write_enable_i), 
@@ -34,9 +35,9 @@ module decode
 	
 	assign row_d = instr_i[17:13];
 	
-	assign d_op1_reg_d = instr_i[19:15];
+	assign d_op1_reg_o = instr_i[19:15];
 	
-	assign d_op2_reg_d = instr_i[14:10];
+	assign d_op2_reg_o = instr_i[14:10];
 	
 	/////////////////
 	// ID/EX Flops //
@@ -59,8 +60,6 @@ module decode
 			wb_sel_o <= wb_sel_o;
 			col_o <= col_o;
 			row_o <=  row_o;
-			d_op2_reg_o <= d_op2_reg_o;
-			d_op1_reg_o <= d_op1_reg_o;
 		end
 		else if (flush_i) begin
 			pc_o <= pc_i;
@@ -73,8 +72,6 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
-			d_op2_reg_o <= d_op2_reg_d;
-			d_op1_reg_o <= d_op1_reg_d;
 		end
 		else begin
 			pc_o <= pc_i;
@@ -87,8 +84,6 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
-			d_op2_reg_o <= d_op2_reg_d;
-			d_op1_reg_o <= d_op1_reg_d;
 		end
 	
 	// Needs to clear this on flush and reset //

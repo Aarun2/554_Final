@@ -36,34 +36,31 @@ module decode_tb();
 		R_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 || 
-				   write_reg_sel_o !== instr_i[24:20] || d_op1_reg_o !== instr_i[19:15] ||
-				   d_op2_reg_o !== instr_i[14:10]);
+				   write_reg_sel_o !== instr_i[24:20]);
 	endfunction
 	
 	function I_instr();
 		I_instr = (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 ||
-				   imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} || write_reg_sel_o !== instr_i[24:20] ||
-				   d_op1_reg_o !== instr_i[19:15] || d_op2_reg_o !== instr_i[14:10]);
+				   imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} || write_reg_sel_o !== instr_i[24:20]);
 	endfunction
 	
 	function B_instr();
 		B_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
-				   start_o !== 0 || pc_o !== pc_i || branch_type_o !== 1 || d_op1_reg_o !== instr_i[19:15] ||
-				   imm_o !== {{17{instr_i[24]}}, instr_i[24:20], instr_i[9:0]} || d_op2_reg_o !== instr_i[14:10]);
+				   start_o !== 0 || pc_o !== pc_i || branch_type_o !== 1 ||
+				   imm_o !== {{17{instr_i[24]}}, instr_i[24:20], instr_i[9:0]});
 	endfunction
 	
 	function j_instr();
 		j_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
-				   start_o !== 0 || pc_o !== pc_i || d_op2_reg_o !== instr_i[14:10] || d_op1_reg_o !== instr_i[19:15]);
+				   start_o !== 0 || pc_o !== pc_i);
 	endfunction
 	
 	function tpu_instr();
-		tpu_instr = (mem_write_enable_o !== 0 || pc_o !== pc_i || branch_type_o !== 0 || d_op1_reg_o !== instr_i[19:15] ||
-		             d_op2_reg_o !== instr_i[14:10]);
+		tpu_instr = (mem_write_enable_o !== 0 || pc_o !== pc_i || branch_type_o !== 0);
 	endfunction
 	
 	//////////////////////////////////////
@@ -73,8 +70,8 @@ module decode_tb();
 	task nop_check();
 		@(posedge clk_i);
 		@(negedge clk_i);
-		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || write_enable_A_o !== 0 || d_op2_reg_o !== instr_i[14:10] ||
-		    write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || pc_o !== pc_i || d_op1_reg_o !== instr_i[19:15] ||
+		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || write_enable_A_o !== 0 ||
+		    write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || pc_o !== pc_i ||
 			branch_type_o !== 0) begin
 			$display("Problem with nop instruction");
 			$stop();
@@ -328,8 +325,8 @@ module decode_tb();
 	task lw_check();
 		@(posedge clk_i);
 		@(negedge clk_i);
-		if (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || d_op1_reg_o !== instr_i[19:15] ||
-		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 || d_op2_reg_o !== instr_i[14:10] ||
+		if (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 ||
+		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 ||
 			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
 			pc_o !== pc_i || alu_op_o !== 1 || wb_sel_o !== 1 || write_reg_sel_o !== instr_i[24:20]) begin
 			$display("Problem with lw instruction");
@@ -341,9 +338,9 @@ module decode_tb();
 		@(posedge clk_i);
 		@(negedge clk_i);
 		if (imm_sel_o !== 1 || reg_write_enable_o !== 0 || mem_write_enable_o !== 1 || read_data2_o !== mem[instr_i[14:10]] ||
-		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 || d_op2_reg_o !== instr_i[14:10] ||
+		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 ||
 			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
-			pc_o !== pc_i || alu_op_o !== 1 || d_op1_reg_o !== instr_i[19:15]) begin
+			pc_o !== pc_i || alu_op_o !== 1) begin
 			$display("Problem with sw instruction");
 			$stop();
 		end
@@ -408,9 +405,16 @@ module decode_tb();
 	task undef_check();
 		@(posedge clk_i);
 		@(negedge clk_i);
-		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || write_enable_A_o !== 0 || d_op2_reg_o !== instr_i[14:10] ||
-		    write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || pc_o !== pc_i || d_op1_reg_o !== instr_i[19:15]) begin
+		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || write_enable_A_o !== 0 ||
+		    write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || pc_o !== pc_i) begin
 			$display("Problem with undefined instruction");
+			$stop();
+		end
+	endtask
+	
+	task cf_check();
+		if (d_op1_reg_o !== instr_i[19:15] || d_op2_reg_o !== instr_i[14:10]) begin
+			$display("Problem with control flow signals");
 			$stop();
 		end
 	endtask
@@ -524,6 +528,7 @@ module decode_tb();
 				undef_check();
 			end
         	endcase
+			cf_check();
 	endtask	
 	
 	initial begin
