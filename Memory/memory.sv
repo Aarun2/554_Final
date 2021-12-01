@@ -1,63 +1,111 @@
 module memory
-	#(
-	parameter PC_BITS = 16
-	)
 	(
-	input clk_i, rst_n_i, halt_i, flush_i, stall_i, cache_en_i, mem_write_i, wb_sel_i, reg_write_i,
-	input [PC_BITS-1:0] result_i /*, TODO: figure if this is needed: read_data_i*/, write_data_i,
-	output logic reg_write_o, wb_sel_o,
-	output logic [PC_BITS-1:0] read_data_o, result_o
+	input clk_i, rst_n_i, 
+	input flush_i, stall_i,
+	input mem_write_en_i, reg_write_en_i, forward_en_i, data_cache_valid_i,	
+	input [1:0] wb_sel_i,
+	input [4:0] write_reg_sel_i,
+	input [31:0] cout_i, result_i, read_data_2_i, forward_data_i, data_from_cache_i,
+	output logic reg_write_en_o, // pass through 
+	output logic wr_to_cache_o, stall_o,
+	output logic [1:0] wb_sel_o, // pass through
+	output logic [4:0] write_reg_sel_o, // pass through
+	output logic [31:0] result_o, cout_o, // pass through
+	output logic [31:0] read_data_o, data_to_cache_o, addr_to_cache_o
 	); 
 	
 	//intermediate signals
-	logic [PC_BITS-1:0] write_data;
+	logic [31:0] read_data_d;
 	
-	//flop in result_i, write_data_i, wb_sel_i, reg_write_i
+	assign stall_o = data_cache_valid_i ? 0 : 1; // for control flow 
+	
+	// outputs to D cache
+	assign data_to_cache_o = flush_i ? 0 : stall_i ? data_to_cache_o : read_data_2_i;
+	assign addr_to_cache_o = flush_i ? 0 : stall_i ? addr_to_cache_o : result_i;
+	assign wr_to_cache_o = flush_i ? 0 : stall_i ? wr_to_cache_o : mem_write_en_i;
+	
+	// inputs back from D cache
+	assign read_data_d = data_cache_valid_i ? data_from_cache_i : read_data_o;
+	
+	/////////////////////////////
+	//flop outputs for pipeline //
+	//////////////////////////////
+	// reg_write_en_o
 	always_ff @(posedge clk_i) begin
-		if (!rst_n_i) begin
-			write_data <= 0;
+		if (!rst_n_i | flush_i) begin
+			reg_write_en_o <= 0;
 		end
-		else begin
-			write_data <= write_data_i;
+		else if (stall_i) begin
+			reg_write_en_o <= reg_write_en_o;
+		end
+		else begin 
+			reg_write_en_o <= reg_write_en_i;
 		end
 	end
 	
+	// wb_sel_o
 	always_ff @(posedge clk_i) begin
-		if (!rst_n_i) begin
-			result_o <= 0;
-		end
-		else begin
-			result_o <= result_i;
-		end
-	end
-	
-	always_ff @(posedge clk_i) begin
-		if (!rst_n_i) begin
+		if (!rst_n_i | flush_i) begin
 			wb_sel_o <= 0;
+		end
+		else if (stall_i) begin
+			wb_sel_o <= wb_sel_o;
 		end
 		else begin
 			wb_sel_o <= wb_sel_i;
 		end
 	end
 	
+	//write_reg_sel_o
 	always_ff @(posedge clk_i) begin
-		if (!rst_n_i) begin
-			reg_write_o <= 0;
+		if (!rst_n_i | flush_i) begin
+			write_reg_sel_o <= 0;
 		end
-		else begin 
-			reg_write_o <= reg_write_i;
+		else if (stall_i) begin
+			write_reg_sel_o <= write_reg_sel_o;
+		end
+		else begin
+			write_reg_sel_o <= write_reg_sel_i;
 		end
 	end
 	
-	//instantiate data cache
-	d_cache iDCACHE(
-		.clk_i(clk_i), 
-		.rst_n_i(rst_n_i), 
-		.cache_en_i(cache_en_i),
-		.write_read_i(mem_write_i),		
-		.addr_i(result_o), 
-		.data_i(write_data), 
-		.data_o(read_data_o)
-	);
+	// result_o
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i | flush_i) begin
+			result_o <= 0;
+		end
+		else if (stall_i) begin
+			result_o <= result_o;
+		end
+		else begin
+			result_o <= result_i;
+		end
+	end
 	
+	// cout_o
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i | flush_i) begin
+			cout_o <= 0;
+		end
+		else if (stall_i) begin
+			cout_o <= cout_o;
+		end
+		else begin 
+			cout_o <= cout_i;
+		end
+	end
+	
+	// read_data_o
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i | flush_i) begin
+			read_data_o <= 0;
+		end
+		else if (stall_i) begin
+			read_data_o <= read_data_o;
+		end
+		else begin 
+			read_data_o <= read_data_d;
+		end
+	end
+
 endmodule
