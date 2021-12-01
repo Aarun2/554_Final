@@ -1,33 +1,30 @@
-module d_cache#(
-	parameter PC_BITS = 16
-	)
+module d_cache
 	(
-	input clk_i, 
-	input rst_n_i, 
-	input write_read_i, 
-	input cache_en_i, 
-	input [PC_BITS-1:0] addr_i, 
-	input [PC_BITS-1:0] data_i,
-	output [PC_BITS-1:0] data_o
+	input clk_i, rst_n_i,
+	input pipeline_write_valid_i, 
+	input [31:0] addr_in_pipeline_i, data_in_pipeline_i,
+	output logic pipeline_valid_o,
+	output logic [31:0] data_out_pipeline_o
 	);
 	
-	logic [PC_BITS-1:0] instr_mem [(2**PC_BITS) - 1:0];
+	//dummy cache
+	logic [31:0] data_mem [(2**16) - 1:0];
 	
-	assign data_o = (cache_en_i & !write_read_i) ? instr_mem[addr_i] : 'b0;
+	assign data_out_pipeline_o = pipeline_write_valid_i ? 0 : data_mem[addr_in_pipeline_i];
+	assign pipeline_valid_o = 1'b1; // dummy cache always 1
 	
-	always_ff@(posedge clk_i) begin
+	// write logic 
+	always_ff @(posedge clk_i) begin
 		if (!rst_n_i) begin
-			
+			// do nothing
 		end else begin
-			if (cache_en_i) begin
-				if (write_read_i == 1) begin
-					instr_mem[addr_i] <= data_i;
-				end 
-			end
+			if (pipeline_write_valid_i) begin
+				data_mem[addr_in_pipeline_i] <= data_in_pipeline_i;
+			end 
 		end
 	end
 	
 	initial	
-		$readmemh("test_icache.txt", instr_mem);
+		$readmemh("test.txt", data_mem);
 
 endmodule
