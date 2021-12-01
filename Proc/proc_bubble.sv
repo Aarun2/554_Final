@@ -93,6 +93,7 @@ module proc(
 	logic wb_to_de_reg_wrdata;
 	logic wb_to_de_reg_wren;
 	logic wb_to_cf_w_dest_reg;
+	logic wb_to_de_dest_reg;
 	// To Decode
 	// To Control Flow
 	
@@ -144,7 +145,7 @@ module proc(
 		rst_n_i				(rst_n),
 		flush_i				(cf_to_de_d_flush),
 		reg_write_enable_i	(wb_to_de_reg_wren),
-		write_reg_sel_i		(),
+		write_reg_sel_i		(wb_to_de_dest_reg),
 		instr_i				(fe_to_de_instr),
 		write_data_i		(wb_to_de_reg_wrdata),
 		pc_i				(fe_to_de_pc),
@@ -249,5 +250,8 @@ module proc(
 		reg_wren_o			(wb_to_de_reg_wren),
 		w_dest_reg_o		(wb_to_cf_w_dest_reg)
 	);
+	
+	
+	assign wb_to_de_dest_reg = wb_to_cf_w_dest_reg;
 	
 endmodule
