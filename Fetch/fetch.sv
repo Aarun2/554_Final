@@ -1,18 +1,22 @@
 module fetch
-	#(
-	parameter PC_BITS = 16
-	)
 	(
-	input clk_i, rst_n_i, branch_i, stall_i,
-	input [PC_BITS-1:0] pc_i,
-	output [PC_BITS-1:0] instr_o, pc_o
+	input clk_i, rst_n_i, 
+	input branch_i, stall_i, flush_i, data_cache_valid_i,
+	input [31:0] pc_i, data_from_cache_i,
+	output stall_o,
+	output [31:0] addr_to_cache_o,
+	output logic [31:0] instr_o, pc_o
 	);
 	
-	logic [PC_BITS-1:0] pc_reg;
-	logic [PC_BITS-1:0] addr;
+	logic [31:0] pc_reg, addr, pc_d, instr_d;
 	
-	assign pc_reg = branch_i ? pc_i : pc_o;
-	assign pc_o = stall_i ? pc_o : addr + 4;
+	assign stall_o = data_cache_valid_i ? 0 : 1; // for control flow 
+	assign addr_to_cache_o = addr;
+	assign instr_d = flush_i ? 0 : data_cache_valid_i ? data_from_cache_i : 0; // data_cache_valid_i should always be high
+	
+	// pc logic 
+	assign pc_reg = branch_i ? pc_i : pc_d;
+	assign pc_d = stall_i ? pc_d : addr + 4;
 	
 	//pc reg
 	always_ff @(posedge clk_i) begin
@@ -24,7 +28,24 @@ module fetch
 		end
 	end
 	
-	//fetch instr_o (clk_i, rst_n_i not needed as of now)
-	i_cache iICACHE(.clk_i(clk_i), .rst_n_i(rst_n_i), .addr_i(addr), .instr_o(instr_o));
+	// flop outputs for pipeline
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i) begin
+			pc_o <= 0;
+		end
+		else begin
+			pc_o <= pc_d;
+		end
+	end
+	
+	// flop outputs for pipeline
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i) begin
+			instr_o <= 0;
+		end
+		else begin
+			instr_o <= instr_d;
+		end
+	end
 	
 endmodule

@@ -1,15 +1,15 @@
 `timescale 1ns/1ns
 module fetch_tb();
 
-	localparam PC_BITS = 16;
-
-	logic clk_i, rst_n_i, stall_i, branch_i;
-	logic [PC_BITS-1:0] pc_i, pc_o, instr_o;
+	logic clk_i, rst_n_i, stall_i, branch_i, flush_i, data_cache_valid_i, stall_o;
+	logic [31:0] pc_i, pc_o, instr_o, addr_to_cache_o, data_from_cache_i;
 	
-	logic [PC_BITS-1:0] pc_check, pc_prev;
+	logic [31:0] pc_check, pc_prev, instr_check, stall_check;
 	
 	fetch fetch_DUT (.clk_i(clk_i), .rst_n_i(rst_n_i), .instr_o(instr_o), .pc_i(pc_i), 
-										.pc_o(pc_o), .branch_i(branch_i), .stall_i(stall_i));
+										.pc_o(pc_o), .branch_i(branch_i), .stall_i(stall_i), .flush_i(flush_i),
+										.data_cache_valid_i(data_cache_valid_i), .data_from_cache_i(data_from_cache_i),
+										.addr_to_cache_o(addr_to_cache_o), .stall_o(stall_o));
 	
 	////////////////////////////////////////////////////////////////////
 	// Init task
@@ -21,6 +21,9 @@ module fetch_tb();
 		rst_n_i = 1'b0;
 		stall_i = 1'b0;
 		branch_i = 1'b0;
+		flush_i = 1'b0;
+		data_cache_valid_i = 1'b1; // always valid
+		data_from_cache_i = 0;
 		@(posedge clk_i);
 		rst_n_i = 1'b1;
 	endtask
@@ -34,8 +37,7 @@ module fetch_tb();
 		stall_i = 1'b0;
 		pc_i = $random();
 		pc_check = pc_i + 4;
-		@(posedge clk_i);
-		@(posedge clk_i);
+		repeat (3) @(posedge clk_i);
 		if (pc_check !== pc_o) begin
 			$display("Random pc_i was not incremented correctly	%h %h", pc_check, pc_o);
 			$stop();
@@ -51,8 +53,7 @@ module fetch_tb();
 		stall_i = 1'b0;
 		pc_i = i;
 		pc_check = pc_i + 4;
-		@(posedge clk_i);
-		@(posedge clk_i);
+		repeat (3) @(posedge clk_i);
 		if (pc_check !== pc_o) begin
 			$display("pc_i was not incremented correctly	%h %h", pc_check, pc_o);
 			$stop();
@@ -67,7 +68,7 @@ module fetch_tb();
 		branch_i = 1'b0;
 		stall_i = 1'b0;
 		pc_i = $random();
-		@(posedge clk_i);
+		repeat (2) @(posedge clk_i);
 		pc_check = pc_o + 4;
 		@(posedge clk_i);
 		if (pc_check !== pc_o) begin
@@ -81,6 +82,7 @@ module fetch_tb();
 	////////////////////////////////////////////////////////////////////
 	task stall_test();
 		stall_i = 1'b1;
+		@(posedge clk_i);
 		pc_prev = pc_o;
 		@(posedge clk_i);
 		if (pc_o !== pc_prev) begin
@@ -89,6 +91,65 @@ module fetch_tb();
 		end
 	endtask
 	
+	///////////////////////////////////////////////////////////////////////////////////
+	// Task that performs random instr fetches and makes sure it gets correct instr  //
+	///////////////////////////////////////////////////////////////////////////////////
+	task random_fetch();
+		stall_i = 1'b0;
+		data_cache_valid_i = 1;
+		data_from_cache_i = $random();
+		instr_check = data_from_cache_i;
+		repeat (2) @(posedge clk_i);
+		if (instr_o !== instr_check) begin
+			$display("err: random instr incorrectly fetched (expected:)%d (actual:)%d",instr_check, instr_o);
+			$stop();
+		end
+	endtask
+	
+	///////////////////////////////////////////////////////////////////////////////////
+	// Exhaustive Fetch test  																											//
+	///////////////////////////////////////////////////////////////////////////////////
+	task exhaustive_fetch(integer i);
+		data_cache_valid_i = 1;
+		data_from_cache_i = i;
+		instr_check = i;
+		repeat(2) @(posedge clk_i);
+		if (instr_o !== instr_check) begin
+			$display("err: instr incorrectly fetched (expected:)%d (actual:)%d",instr_check, instr_o);
+			$stop();
+		end
+	endtask
+	
+	///////////////////////////////////////////////////////////////////////////////////
+	// Tests flush to make the control signal pushes NOPS to the instr output of fetch//
+	///////////////////////////////////////////////////////////////////////////////////
+	task flush_test();
+		stall_i = 1'b0;
+		flush_i = 1'b1;
+		repeat(2) @(posedge clk_i);
+		if (instr_o !== 0) begin
+			$display("err: flush should force instr to 0 (NOP)");
+			$stop();
+		end
+	endtask
+	
+		///////////////////////////////////////////////////////////////////////////////////
+	// Tests data_cache_valid_i to make the control signal pushes NOPS to the instr		// 
+	// output of fetch (same concept as flush test above															//
+	///////////////////////////////////////////////////////////////////////////////////
+	task cache_valid_test();
+		stall_i = 1'b0;
+		flush_i = 1'b0;
+		data_cache_valid_i = 1'b0;
+		repeat(2) @(posedge clk_i);
+		if (instr_o !== 0) begin
+			$display("err: invalid cache should force instr to 0 (NOP)");
+			$stop();
+		end
+	endtask
+	
+	
+	// MAIN SEGMENT OF TB
 	initial begin
 		//Set up signals
 		init();
@@ -102,7 +163,7 @@ module fetch_tb();
 		
 		// Test 2: Exhaustive pcIns //
 		$display("Exhaustiv pc_i Test");
-		for (int i = 0; i < 2**PC_BITS; i++) begin
+		for (int i = 0; i < 2**16; i++) begin
 			exhaustive_pcIn(i);
 		end
 		$display("Exhaustive pc_i Test Complete");
@@ -127,15 +188,47 @@ module fetch_tb();
 		stall_i = 1'b0;
 		@(posedge clk_i);
 		rst_n_i = 1;
-		@(posedge clk_i);
+		repeat(2) @(posedge clk_i);
 		if (pc_o !== 4) begin
 			$display("Err: reset should make PC go to 4! (because of adder after flop)");
 			$stop();
 		end
-
 		$display("Memory Reset Test Complete");
 		
+		// Test 6: random fetches
+		$display("Random Fetch Test");
+		for (int i = 0; i < 1000; i++) begin
+			random_fetch();
+		end
+		$display("Random Fetch Test Complete");
+		
+		// Test 7: exhaustive fetches
+		$display("Exhaustive Fetch Test");
+		for (int i = 0; i < 2**16; i++) begin
+			exhaustive_fetch(i);
+		end
+		$display("Exhaustive Fetch Test Complete");
+		
+		// Test 8: flush test
+		$display("Flush Test");
+		for (int i = 0; i < 1000; i++) begin
+			data_from_cache_i = $random();
+			flush_test();
+		end
+		$display("Flush Test Complete");
+		
+		// Test 9: cache valid test
+		$display("Cache Valid Test");
+		for (int i = 0; i < 1000; i++) begin
+			data_from_cache_i = $random();
+			cache_valid_test();
+		end
+		$display("Cache Valid Test Complete");
+
+		// TESTS COMPLETE
 		$display("Yahoo Tests Passed!");
+		// TODO: Figure out the valid check part. 
+		// Also add flush check
 		$stop();
 	end
 	
