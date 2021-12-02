@@ -5,14 +5,15 @@ module execute
 	input [3:0] alu_op_i,
 	input imm_sel_i, wb_sel_i, reg_write_enable_i, mem_write_enable_i,
 	input [1:0] branch_type_i, forward_en_i,
-	input [4:0] write_reg_sel_i, col_i, row_i,
+	input [4:0] reg_write_dst_i, col_i, row_i,
 	input start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i,	
 	
 	output logic [31:0] result_o, pc_o, cout_o, read_data2_o,
-	output logic wb_sel_o, reg_write_enable_o, mem_write_enable_o,
-	output logic [4:0] write_reg_sel_o,
+	output logic wb_sel_o, reg_write_enable_o, mem_write_enable_o, branch_dec_o,
+	output logic [4:0] reg_write_dst_o,
 	output [4:0] e_dest_reg_o,
-	output e_dest_reg_en_o, e_valid_o
+	output [1:0] branch_inst_o,
+	output e_valid_o
 	);
 	
 	// forwarding
@@ -36,10 +37,12 @@ module execute
 	
 	assign e_valid_o = start_i ? done_d : 1'b1;
 	
-	assign e_dest_reg_o = write_reg_sel_i;
+	assign e_dest_reg_o = reg_write_dst_i;
 	
-	assign e_dest_reg_en_o = reg_write_enable_i;
+	assign branch_inst_o  = branch_type_i;
 	
+	assign branch_dec_o = branch_dec;
+		
 	//////////////////
 	// EX/MEM Flops //
 	//////////////////
@@ -72,21 +75,21 @@ module execute
 	always_ff @(posedge clk_i)
 		if (flush_i) begin
 			result_o <= result_d;
-			write_reg_sel_o <=  write_reg_sel_i;
+			reg_write_dst_o <=  reg_write_dst_i;
 			wb_sel_o <= wb_sel_i;
 			cout_o <= cout_d;
 			read_data2_o <= read_data2_d;
 		end
 		else if (stall_i) begin
 			result_o <= result_o;
-			write_reg_sel_o <=  write_reg_sel_o;
+			reg_write_dst_o <=  reg_write_dst_o;
 			wb_sel_o <= wb_sel_o;
 			cout_o <= cout_o;
 			read_data2_o <= read_data2_o;
 		end
 		else begin
 			result_o <= result_d;
-			write_reg_sel_o <=  write_reg_sel_i;
+			reg_write_dst_o <=  reg_write_dst_i;
 			wb_sel_o <= wb_sel_i;
 			cout_o <= cout_d;
 			read_data2_o <= read_data2_d;

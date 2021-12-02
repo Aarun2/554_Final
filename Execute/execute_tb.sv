@@ -8,15 +8,16 @@ module execute_tb();
 	logic [3:0] alu_op_i;
 	logic imm_sel_i, wb_sel_i, reg_write_enable_i, mem_write_enable_i;
 	logic [1:0] branch_type_i, forward_en_i;
-	logic [4:0] write_reg_sel_i, col_i, row_i;
+	logic [4:0] reg_write_dst_i, col_i, row_i;
 	logic start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i;
 	
 	logic [31:0] result_o;
 	logic wb_sel_o, reg_write_enable_o, mem_write_enable_o;
-	logic [4:0] write_reg_sel_o;
+	logic [4:0] reg_write_dst_o;
 	logic [31:0] pc_o, cout_o, read_data2_o;
 	logic [4:0] e_dest_reg_o;
-	logic e_dest_reg_en_o, e_valid_o;
+	logic [1:0] branch_inst_o;
+	logic e_valid_o, branch_dec_o;
 	
 	logic [31:0] result_old;
 	logic wb_sel_old, reg_write_enable_old, mem_write_enable_old;
@@ -130,7 +131,7 @@ module execute_tb();
 	// EX/MEM Checks //
 	task ex_mem_check();
 		if (wb_sel_o !== wb_sel_i || reg_write_enable_o !== reg_write_enable_i ||
-			mem_write_enable_o !== mem_write_enable_i || write_reg_sel_o !== write_reg_sel_i ||
+			mem_write_enable_o !== mem_write_enable_i || reg_write_dst_o !== reg_write_dst_i ||
 			read_data2_o !== read_data2_i) begin
 			$display("No data is forwarded with no flush or stalls and so mem stage should get execute signals");
 			$stop();
@@ -285,7 +286,7 @@ module execute_tb();
 			reg_write_enable_i = $random();
 			mem_write_enable_i = $random();
 			branch_type_i = $random();
-			write_reg_sel_i = $random();
+			reg_write_dst_i = $random();
 			@(posedge clk_i);
 			@(negedge clk_i);
 			branch_check();
@@ -299,7 +300,7 @@ module execute_tb();
 		wb_sel_old = wb_sel_o;
 		reg_write_enable_old = reg_write_enable_o;
 		mem_write_enable_old = mem_write_enable_o;
-		write_reg_sel_old = write_reg_sel_o;
+		write_reg_sel_old = reg_write_dst_o;
 		pc_old = pc_o;
 		cout_old = cout_o;
 		read_data2_old = read_data2_o;
@@ -307,7 +308,7 @@ module execute_tb();
 		@(posedge clk_i);
 		stall_i = 0;
 		if (result_old !== result_o || wb_sel_old !== wb_sel_o || reg_write_enable_old !== reg_write_enable_o ||
-		    mem_write_enable_old !== mem_write_enable_o || write_reg_sel_old !== write_reg_sel_o || pc_old !== pc_o ||
+		    mem_write_enable_old !== mem_write_enable_o || write_reg_sel_old !== reg_write_dst_o || pc_old !== pc_o ||
 			cout_old !== cout_o || read_data2_old !== read_data2_o) begin
 			$display("Stall is not working correctly");
 			$stop();
