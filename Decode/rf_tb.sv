@@ -8,7 +8,7 @@ module rf_tb();
 	logic [31:0] mem [31:0];
 	
 	rf rf_DUT (.clk_i(clk), .rst_n_i(rst_n), .read_reg1_sel_i(read1regsel), .read_reg2_sel_i(read2regsel), .write_enable_i(write), 
-	           .write_reg_sel_i(writeregsel), .write_data_i(writedata), .read_data1_o(read1data), .read_data2_o(read2data));
+	           .reg_write_dst_i(writeregsel), .write_data_i(writedata), .read_data1_o(read1data), .read_data2_o(read2data));
 	
 	initial
 		$readmemh("test.txt", mem);

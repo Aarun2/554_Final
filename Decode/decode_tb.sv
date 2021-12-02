@@ -3,7 +3,7 @@ module decode_tb();
 	localparam TIME_PER_INSTR = 10**6;
 
 	logic clk_i, rst_n_i, flush_i, reg_write_enable_i, stall_i;
-	logic [4:0] write_reg_sel_i, write_reg_sel_o, col_o, row_o, d_op2_reg_o, d_op1_reg_o;
+	logic [4:0] reg_write_dst_i, reg_write_dst_o, col_o, row_o, d_op2_reg_o, d_op1_reg_o;
 	logic [31:0] instr_i, write_data_i, pc_i, pc_o;
 	logic imm_sel_o, reg_write_enable_o, mem_write_enable_o;
 	logic write_enable_A_o, write_enable_B_o, write_enable_C_o, start_o;
@@ -36,14 +36,14 @@ module decode_tb();
 		R_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 || 
-				   write_reg_sel_o !== instr_i[24:20]);
+				   reg_write_dst_o !== instr_i[24:20]);
 	endfunction
 	
 	function I_instr();
 		I_instr = (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 ||
-				   imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} || write_reg_sel_o !== instr_i[24:20]);
+				   imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} || reg_write_dst_o !== instr_i[24:20]);
 	endfunction
 	
 	function B_instr();
@@ -328,7 +328,7 @@ module decode_tb();
 		if (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 ||
 		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 ||
 			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
-			pc_o !== pc_i || alu_op_o !== 1 || wb_sel_o !== 1 || write_reg_sel_o !== instr_i[24:20]) begin
+			pc_o !== pc_i || alu_op_o !== 1 || wb_sel_o !== 1 || reg_write_dst_o !== instr_i[24:20]) begin
 			$display("Problem with lw instruction");
 			$stop();
 		end
@@ -394,7 +394,7 @@ module decode_tb();
 	task racc_check();
 		@(posedge clk_i);
 		@(negedge clk_i);
-		if (tpu_instr || start_o !== 0 || write_reg_sel_o !== instr_i[24:20] || wb_sel_o !== 2 ||
+		if (tpu_instr || start_o !== 0 || reg_write_dst_o !== instr_i[24:20] || wb_sel_o !== 2 ||
 			write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 || 
 			row_o !== instr_i[17:13] || col_o !== instr_i[12:8] || reg_write_enable_o !== 1) begin
 			$display("Problem with racc instruction");
@@ -573,7 +573,7 @@ module decode_tb();
 		alu_op_old = alu_op_o;
 		wb_sel_old = wb_sel_o;
 		branch_type_old = branch_type_o;
-		write_reg_sel_old = write_reg_sel_o;
+		write_reg_sel_old = reg_write_dst_o;
 		col_old = col_o;
 		row_old = row_o;
 	
@@ -587,7 +587,7 @@ module decode_tb();
 			write_enable_B_old !== write_enable_B_o || write_enable_C_old !== write_enable_C_o ||
 			start_old !== start_o || read_data1_old !== read_data1_o || read_data2_old !== read_data2_o ||
 			imm_old !== imm_o || pc_old !== pc_o || alu_op_old !== alu_op_o || wb_sel_old !== wb_sel_o ||
-			branch_type_old !== branch_type_o || write_reg_sel_old !== write_reg_sel_o ||
+			branch_type_old !== branch_type_o || write_reg_sel_old !== reg_write_dst_o ||
 			col_old !== col_o || row_old !== row_o) begin
 			$display("Problem with the stall signal");
 			$stop();

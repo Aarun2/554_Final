@@ -1,14 +1,14 @@
 module decode
 	(
 	 input clk_i, rst_n_i, flush_i, reg_write_enable_i, stall_i,
-	 input [4:0] write_reg_sel_i, 
+	 input [4:0] reg_write_dst_i, 
 	 input [31:0] instr_i, write_data_i, pc_i, 
 	 output logic imm_sel_o, reg_write_enable_o, mem_write_enable_o,
 	 output logic write_enable_A_o, write_enable_B_o, write_enable_C_o, start_o,
 	 output logic [31:0] read_data1_o, read_data2_o, imm_o, pc_o,
 	 output logic [3:0] alu_op_o, 
 	 output logic [1:0] wb_sel_o, branch_type_o, 
-	 output logic [4:0] write_reg_sel_o, col_o, row_o, 
+	 output logic [4:0] reg_write_dst_o, col_o, row_o, 
 	 output [4:0] d_op2_reg_o, d_op1_reg_o
 	);
 	
@@ -21,7 +21,7 @@ module decode
 	logic tpu_start_d, tpu_wren_A_d, tpu_wren_B_d, tpu_wren_C_d;
 	
 	rf reg_file (.clk_i(clk_i), .rst_n_i(rst_n_i), .read_reg1_sel_i(instr_i[19:15]), .read_reg2_sel_i(instr_i[14:10]), .write_enable_i(reg_write_enable_i), 
-			     .write_reg_sel_i(write_reg_sel_i), .write_data_i(write_data_i), .read_data1_o(read_data1_d), .read_data2_o(read_data2_d));
+			     .reg_write_dst_i (reg_write_dst_i), .write_data_i(write_data_i), .read_data1_o(read_data1_d), .read_data2_o(read_data2_d));
 	 
 	control control_inst (.op_i(instr_i[31:25]), .alu_op_o(alu_op_d), .branch_type_o(branch_d), .reg_write_enable_o(write_d), .imm_sel_o(imm_sel_d),
 						  .wb_sel_o(wb_sel_d), .mem_write_enable_o(m_write_d), .tpu_start_o(tpu_start_d), .tpu_write_enable_A(tpu_wren_A_d), 
@@ -51,7 +51,7 @@ module decode
 	always_ff @(posedge clk_i)
 		if (stall_i) begin
 			pc_o <= pc_o;
-			write_reg_sel_o <= write_reg_sel_o;
+			reg_write_dst_o <= reg_write_dst_o;
 			read_data1_o <= read_data1_o;
 			read_data2_o <= read_data2_o;
 			imm_o <= imm_o;
@@ -63,7 +63,7 @@ module decode
 		end
 		else if (flush_i) begin
 			pc_o <= pc_i;
-			write_reg_sel_o <= instr_i[24:20];
+			reg_write_dst_o <= instr_i[24:20];
 			read_data1_o <= read_data1_d;
 			read_data2_o <= read_data2_d;
 			imm_o <= imm_ext_d;
@@ -75,7 +75,7 @@ module decode
 		end
 		else begin
 			pc_o <= pc_i;
-			write_reg_sel_o <= instr_i[24:20];
+			reg_write_dst_o <= instr_i[24:20];
 			read_data1_o <= read_data1_d;
 			read_data2_o <= read_data2_d;
 			imm_o <= imm_ext_d;

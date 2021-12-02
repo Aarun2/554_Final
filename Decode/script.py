@@ -9,7 +9,7 @@ import random
 #############################################
 
 def randGen (filepath, entries, num_bytes):
-    fh = open(filepath, "w";
+    fh = open(filepath, "w");
     for line in range(entries):
         print_str = ""
         for bytes in range(num_bytes):
@@ -18,4 +18,4 @@ def randGen (filepath, entries, num_bytes):
     fh.close()
 
 if __name__ == '__main__':
-    randGen("./test.txt", 10, 2)
+    randGen("./instr_mem.txt", 10, 8)
