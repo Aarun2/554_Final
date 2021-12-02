@@ -6,13 +6,13 @@ module memory_tb();
 	logic flush_i, stall_i;
 	logic mem_write_en_i, reg_write_en_i, forward_en_i, data_cache_valid_i;	
 	logic [1:0] wb_sel_i;
-	logic [4:0] write_reg_sel_i;
+	logic [4:0] reg_write_dst_i;
 	logic [31:0] cout_i, result_i, read_data_2_i, forward_data_i, data_from_cache_i;
 	// "Outputs"
 	logic reg_write_en_o; // pass through 
 	logic wr_to_cache_o, stall_o;
 	logic [1:0] wb_sel_o; // pass through
-	logic [4:0] write_reg_sel_o; // pass through
+	logic [4:0] reg_write_dst_o; // pass through
 	logic [31:0] result_o, cout_o; // pass through
 	logic [31:0] read_data_o, data_to_cache_o, addr_to_cache_o;
 	
@@ -30,7 +30,7 @@ module memory_tb();
 		.forward_en_i(forward_en_i),
 		.data_cache_valid_i(data_cache_valid_i), 
 		.wb_sel_i(wb_sel_i), 
-		.write_reg_sel_i(write_reg_sel_i),
+		.reg_write_dst_i(reg_write_dst_i),
 		.cout_i(cout_i),
 		.result_i(result_i),
 		.read_data_2_i(read_data_2_i),
@@ -40,7 +40,7 @@ module memory_tb();
 		.wr_to_cache_o(wr_to_cache_o),
 		.stall_o(stall_o),
 		.wb_sel_o(wb_sel_o),
-		.write_reg_sel_o(write_reg_sel_o),
+		.reg_write_dst_o(reg_write_dst_o),
 		.result_o(result_o),
 		.cout_o(cout_o),
 		.read_data_o(read_data_o),
@@ -64,7 +64,7 @@ module memory_tb();
 		forward_en_i = 0;
 		data_cache_valid_i = 1'b1; // always valid
 		wb_sel_i = 2'b00;	// 2 bit 
-		write_reg_sel_i = 5'h00; // 5 bit
+		reg_write_dst_i = 5'h00; // 5 bit
 		cout_i = 0;	// 32 bit for the rest
 		result_i = 0;
 		read_data_2_i = 0;
@@ -81,7 +81,7 @@ module memory_tb();
 		@(posedge clk_i);
 		reg_write_en_i = $random();
 		wb_sel_i = $random();
-		write_reg_sel_i = $random();
+		reg_write_dst_i = $random();
 		result_i = $random();
 		cout_i = $random();
 		@(posedge clk_i);
@@ -94,8 +94,8 @@ module memory_tb();
 			$display("wb_sel_i not passed through pipeline correctly (Expected: %h, Actual: %h", wb_sel_i, wb_sel_o);
 			$stop();
 		end
-		if (write_reg_sel_i !== write_reg_sel_o) begin
-			$display("write_reg_sel_i not passed through pipeline correctly (Expected: %h, Actual: %h", write_reg_sel_i, write_reg_sel_o);
+		if (reg_write_dst_i !== reg_write_dst_o) begin
+			$display("reg_write_dst_i not passed through pipeline correctly (Expected: %h, Actual: %h", reg_write_dst_i, reg_write_dst_o);
 			$stop();
 		end
 		if (result_i !== result_o) begin

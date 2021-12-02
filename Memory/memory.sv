@@ -4,12 +4,12 @@ module memory
 	input flush_i, stall_i,
 	input mem_write_en_i, reg_write_en_i, forward_en_i, data_cache_valid_i,	
 	input [1:0] wb_sel_i,
-	input [4:0] write_reg_sel_i,
+	input [4:0] reg_write_dst_i,
 	input [31:0] cout_i, result_i, read_data_2_i, forward_data_i, data_from_cache_i,
 	output logic reg_write_en_o, // pass through 
 	output logic wr_to_cache_o, stall_o,
 	output logic [1:0] wb_sel_o, // pass through
-	output logic [4:0] write_reg_sel_o, // pass through
+	output logic [4:0] reg_write_dst_o, // pass through
 	output logic [31:0] result_o, cout_o, // pass through
 	output logic [31:0] read_data_o, data_to_cache_o, addr_to_cache_o
 	); 
@@ -56,16 +56,16 @@ module memory
 		end
 	end
 	
-	//write_reg_sel_o
+	//reg_write_dst_o
 	always_ff @(posedge clk_i) begin
 		if (!rst_n_i | flush_i) begin
-			write_reg_sel_o <= 0;
+			reg_write_dst_o <= 0;
 		end
 		else if (stall_i) begin
-			write_reg_sel_o <= write_reg_sel_o;
+			reg_write_dst_o <= reg_write_dst_o;
 		end
 		else begin
-			write_reg_sel_o <= write_reg_sel_i;
+			reg_write_dst_o <= reg_write_dst_i;
 		end
 	end
 	
