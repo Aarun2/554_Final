@@ -19,6 +19,9 @@ module proc(
 	// To Execute
 	// To Memory
 	// To Writeback
+	// TAPS
+	logic wb_to_cf_w_dest_reg;
+	logic wb_to_cf_m_dest_reg;
 
 
 // FETCH OUTPUTS
@@ -40,7 +43,7 @@ module proc(
 	logic de_to_ex_reg_write_enable;
 	logic de_to_ex_mem_write_enable;
 	logic de_to_ex_branch_type;
-	logic de_to_ex_write_reg_sel;
+	logic de_to_ex_reg_write_dst;
 	logic de_to_ex_pc;
 	logic de_to_ex_write_enable_A;
 	logic de_to_ex_write_enable_B;
@@ -62,11 +65,13 @@ module proc(
 	logic ex_to_mem_wb_sel;
 	logic ex_to_mem_reg_write_enable;
 	logic ex_to_mem_mem_write_enable;
-	logic ex_to_mem_write_reg_sel;
+	logic ex_to_mem_reg_write_dst;
 	logic ex_to_fe_pc;
 	logic ex_to_cf_e_dest_reg;
 	logic ex_to_mem_cout;
 	logic ex_to_mem_read_data_2;
+	logic ex_to_cf_branch_inst_o;
+	logic ex_to_cf_branch_dec_o;
 	// To Fetch	
 	// To Memory
 	// To Writeback
@@ -74,16 +79,15 @@ module proc(
 	
 	
 // MEMORY OUTPUTS
-	logic mem_to_wb_write_reg_sel;
+	logic mem_to_wb_reg_write_dst;
 	logic mem_to_wb_wb_sel;
-	logic mem_to_wb_reg_write_enable;
+	logic mem_to_wb_reg_write_en;
 	logic mem_to_wb_result;
 	logic mem_to_wb_read_data;
 	logic mem_to_wb_cout;
 	logic mem_to_dcache_data_to_cache;
 	logic mem_to_dcache_addr_to_cache;
 	logic mem_to_dcache_wr_to_cache;
-	logic mem_to_cf_m_dst_reg;
 	// To Writeback
 	// To Dcache
 	// To Control Flow
@@ -92,8 +96,9 @@ module proc(
 // WRITEBACK OUTPUTS
 	logic wb_to_de_reg_wrdata;
 	logic wb_to_de_reg_wren;
-	logic wb_to_cf_w_dest_reg;
 	logic wb_to_de_dest_reg;
+	logic wb_to_de_reg_write_dst;
+	logic wb_to_de_reg_write_en;
 	// To Decode
 	// To Control Flow
 	
@@ -102,8 +107,8 @@ module proc(
 	control_flow_bubble cf(
 		clk_i				(clk),
 		rst_n_i				(rst_n),
-		branch_inst_i		(),
-		branch_dec_i		(),
+		branch_inst_i		(ex_to_cf_branch_inst_o),
+		branch_dec_i		(ex_to_cf_branch_dec_o),
 		inst_cache_stall_i	(),
 		data_cache_stall_i	(),
 		tpu_busy_stall_i    (fe_to_cf_stall),
@@ -144,8 +149,8 @@ module proc(
 		clk_i				(clk),
 		rst_n_i				(rst_n),
 		flush_i				(cf_to_de_d_flush),
-		reg_write_enable_i	(wb_to_de_reg_wren),
-		write_reg_sel_i		(wb_to_de_dest_reg),
+		reg_write_enable_i	(wb_to_de_reg_write_en),
+		reg_write_dst_i		(wb_to_de_reg_write_dst),
 		instr_i				(fe_to_de_instr),
 		write_data_i		(wb_to_de_reg_wrdata),
 		pc_i				(fe_to_de_pc),
@@ -159,7 +164,7 @@ module proc(
 		reg_write_enable_o	(de_to_ex_reg_write_enable),
 		mem_write_enable_o	(de_to_ex_mem_write_enable),
 		branch_type_o		(de_to_ex_branch_type),
-		write_reg_sel_o		(de_to_ex_write_reg_sel),
+		reg_write_dst_o		(de_to_ex_reg_write_dst),
 		pc_o				(de_to_ex_pc),
 		write_enable_A_o	(de_to_ex_write_enable_A),
 		write_enable_B_o	(de_to_ex_write_enable_B),
@@ -184,7 +189,7 @@ module proc(
 		reg_write_enable_i	(de_to_ex_reg_write_enable),
 		mem_write_enable_i	(de_to_ex_mem_write_enable),
 		branch_type_i		(de_to_ex_branch_type),
-		reg_write_sel_i		(de_to_ex_write_reg_sel),
+		reg_write_dst_i		(de_to_ex_reg_write_dst),
 		pc_i				(de_to_ex_pc),
 		forward_data_i		(),
 		forward_en_i		(),
@@ -199,19 +204,22 @@ module proc(
 		wb_sel_o			(ex_to_mem_wb_sel),
 		reg_write_enable_o	(ex_to_mem_reg_write_enable),
 		mem_write_enable_o	(ex_to_mem_mem_write_enable),
-		write_reg_sel_o		(ex_to_mem_write_reg_sel),
+		reg_write_dstl_o	(ex_to_mem_reg_write_dst),
 		pc_o				(ex_to_fe_pc),
-		e_dest_reg_o		(ex_to_cf_e_dest_reg),
 		cout_o				(ex_to_mem_cout),
-		read_data_2_o		(ex_to_mem_read_data_2)
+		read_data_2_o		(ex_to_mem_read_data_2),
+		branch_inst_o		(ex_to_cf_branch_inst_o),
+		branch_dec_o		(ex_to_cf_branch_dec_o)
 	);
+	
+	assign ex_to_cf_e_dest_reg = de_to_ex_reg_write_dst;
 
 	memory memory_stage(
 		clk_i				(clk),
 		rst_n_i				(rst_n),
 		stall_i				(cf_to_mem_m_stall),
 		flush_i				(cf_to_mem_m_flush),
-		write_reg_sel_i		(ex_to_mem_write_reg_sel),
+		reg_write_dst_i		(ex_to_mem_reg_write_dst),
 		mem_write_enable_i	(ex_to_mem_mem_write_enable),
 		wb_sel_i			(ex_to_mem_wb_sel),
 		reg_write_enable_i	(ex_to_mem_reg_write_enable),
@@ -222,17 +230,18 @@ module proc(
 		forward_en_i		(),
 		data_from_cache_i	(),
 		data_cache_valid_i	(),
-		write_reg_sel_o		(mem_to_wb_write_reg_sel),
+		reg_write_dst_o		(mem_to_wb_reg_write_dst),
 		wb_sel_o			(mem_to_wb_wb_sel),
-		reg_write_enable_o	(mem_to_wb_reg_write_enable),
+		reg_write_enable_o	(mem_to_wb_reg_write_en),
 		result_o			(mem_to_wb_result),
 		read_data_o			(mem_to_wb_read_data),
 		cout_o				(mem_to_wb_cout),
 		data_to_cache_o		(mem_to_dcache_data_to_cache),
 		addr_to_cache_o		(mem_to_dcache_addr_to_cache),
-		wr_to_cache_o		(mem_to_dcache_wr_to_cache),
-		m_dst_reg_o			(mem_to_cf_m_dst_reg)
+		wr_to_cache_o		(mem_to_dcache_wr_to_cache)
 	);
+	
+	assign mem_to_cf_m_dst_reg = ex_to_mem_reg_write_dst;
 
 	writeback writeback_stage(
 		clk_i				(clk),
@@ -241,17 +250,16 @@ module proc(
 		result_i			(mem_to_wb_result),
 		cout_i				(mem_to_wb_cout),
 		wb_sel_i			(mem_to_wb_wb_sel),
-		reg_wren_i			(mem_to_wb_reg_write_enable),
+		reg_write_en_i		(mem_to_wb_reg_write_en),
 		flush_i				(cf_to_wb_w_flush),
 		stall_i				(cf_to_wb_w_stall),
 		forward_data_i		(),
 		forward_en_i		(),
-		reg_wrdata_o		(wb_to_de_reg_wrdata),
-		reg_wren_o			(wb_to_de_reg_wren),
-		w_dest_reg_o		(wb_to_cf_w_dest_reg)
+		reg_write_data_o	(wb_to_de_reg_wrdata),
+		reg_write_en_o		(wb_to_de_reg_write_en),
+		reg_write_dst_o		(wb_to_de_reg_write_dst),
 	);
 	
-	
-	assign wb_to_de_dest_reg = wb_to_cf_w_dest_reg;
+	assign wb_to_cf_w_dest_reg = mem_to_wb_reg_write_dst;
 	
 endmodule
