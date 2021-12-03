@@ -236,27 +236,27 @@ module proc_bubble_tb();
 	
 	function void checkPrev();
 		if(complete_inst.change == CHANGE_REG) begin
-			
+			compare(complete_inst.instruction);
 		end
 		
 		if(wb_inst.change == CHANGE_MEM) begin
-		
+			compare(wb_inst.instruction);
 		end
 		
 		if(me_inst.change == CHANGE_PC) begin
-		
+			compare(me_inst.instruction);
 		end
 		
 		if(me_inst.change == CHANGE_A) begin
-		
+			compare(me_inst.instruction);
 		end
 		
 		if(me_inst.change == CHANGE_B) begin
-		
+			compare(me_inst.instruction);
 		end
 		
 		if(me_inst.change == CHANGE_C) begin
-		
+			compare(me_inst.instruction);
 		end
 	
 	endfunction
