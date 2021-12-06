@@ -6,21 +6,22 @@ module execute_tb();
 	logic signed [31:0] read_data1_i, read_data2_i, imm_i, forward_data_i;
 	logic [31:0] pc_i;
 	logic [3:0] alu_op_i;
-	logic imm_sel_i, wb_sel_i, reg_write_enable_i, mem_write_enable_i;
-	logic [1:0] branch_type_i, forward_en_i;
+	logic imm_sel_i, reg_write_enable_i, mem_write_enable_i;
+	logic [1:0] branch_type_i, forward_en_i, wb_sel_i;
 	logic [4:0] reg_write_dst_i, col_i, row_i;
 	logic start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i;
 	
 	logic [31:0] result_o;
-	logic wb_sel_o, reg_write_enable_o, mem_write_enable_o;
+	logic reg_write_enable_o, mem_write_enable_o;
 	logic [4:0] reg_write_dst_o;
 	logic [31:0] pc_o, cout_o, read_data2_o;
 	logic [4:0] e_dest_reg_o;
-	logic [1:0] branch_inst_o;
+	logic [1:0] branch_inst_o, wb_sel_o;
 	logic e_valid_o, branch_dec_o;
 	
 	logic [31:0] result_old;
-	logic wb_sel_old, reg_write_enable_old, mem_write_enable_old;
+	logic [1:0] wb_sel_old;
+	logic reg_write_enable_old, mem_write_enable_old;
 	logic [4:0] write_reg_sel_old;
 	logic [31:0] pc_old, cout_old, read_data2_old;
 	
