@@ -29,7 +29,7 @@ module decode
 					 
 	assign imm_ext_d = {{17{imm[14]}}, imm};
 	
-	assign imm = branch_d[0] ? {instr_i[24:20], instr_i[9:0]} : instr_i[14:0];
+	assign imm = (branch_d[0] | m_write_d) ? {instr_i[24:20], instr_i[9:0]} : instr_i[14:0];
 	
 	assign col_d = instr_i[12:8];
 	

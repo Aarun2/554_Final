@@ -1,5 +1,5 @@
 module decode_tb();
-
+	// fix this sw instruction //
 	localparam TIME_PER_INSTR = 10**6;
 
 	logic clk_i, rst_n_i, flush_i, reg_write_enable_i, stall_i;
