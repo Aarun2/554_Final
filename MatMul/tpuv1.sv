@@ -12,11 +12,12 @@ module tpuv1
     output [BITS_C-1:0] dataOut,
 	output done
    );
-	
+
 //----------------------------------------------------------------------------------------
 
 	// Control
 	wire en;
+	wire TESTING; // todo remove later
 	
 	// Reg
 	reg [$clog2(DIM)+1:0] counter;
@@ -64,6 +65,7 @@ module tpuv1
 		);
 	
 	// Counter/en sig
+	assign TESTING = 1;
 	assign en = |counter;
 	assign done = &counter;
 	always_ff @(posedge clk) begin
@@ -72,6 +74,9 @@ module tpuv1
 		end	
 		else if (start || en) begin
 			counter <= counter+1;
+		end
+		else if (TESTING) begin
+			counter <= 0;
 		end
 	end
    
