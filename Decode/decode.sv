@@ -31,9 +31,9 @@ module decode
 	
 	assign imm = (branch_d[0] | m_write_d) ? {instr_i[24:20], instr_i[9:0]} : instr_i[14:0];
 	
-	assign col_d = instr_i[12:8];
+	assign col_d = instr_i[9:5];
 	
-	assign row_d = instr_i[17:13];
+	assign row_d = instr_i[14:10];
 	
 	assign d_op1_reg_o = instr_i[19:15];
 	
