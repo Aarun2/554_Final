@@ -12,7 +12,7 @@ module execute
 	output logic reg_write_enable_o, mem_write_enable_o, branch_dec_o,
 	output logic [4:0] reg_write_dst_o,
 	output logic [1:0] wb_sel_o,
-	output [4:0] e_dest_reg_o,
+	//output [4:0] e_dest_reg_o,
 	output [1:0] branch_inst_o,
 	output e_valid_o
 	);
@@ -30,8 +30,10 @@ module execute
 	
 	alu i_alu (.a_i(read_data1_d), .b_i(b_i), .alu_op_i(alu_op_i), .result_o(result_d), .branch_o(branch_dec));
 	
+	//branch_pc i_branch_pc (.pc_i(pc_i), .imm_i(imm_i), .read_data1_i(read_data1_d), .branch_dec_i(branch_dec), 
+	//                       .branch_type_i(branch_type_i), .pc_o(pc_d));
 	branch_pc i_branch_pc (.pc_i(pc_i), .imm_i(imm_i), .read_data1_i(read_data1_d), .branch_dec_i(branch_dec), 
-	                       .branch_type_i(branch_type_i), .pc_o(pc_d));
+	                       .branch_type_i(branch_type_i), .pc_o(pc_o));
 										  
 	tpuv1 #(.BITS_AB(16), .BITS_C(32), .DIM(32)) i_tpuv1 (.clk(clk_i), .rst_n(rst_n_i), .start(start_i), .WrEnA(write_enable_A_i), .WrEnB(write_enable_B_i), .WrEnC(write_enable_C_i),
 				   .col(col_i), .row(row_i), .dataIn(read_data1_d), .dataOut(cout_d), .done(done_d));
@@ -51,22 +53,22 @@ module execute
 	// Update Key Signals //
 	always_ff @(posedge clk_i, negedge rst_n_i)
 		if (!rst_n_i) begin
-			pc_o <= 0;
+			//pc_o <= 0;
 			reg_write_enable_o <= 0;
 			mem_write_enable_o <= 0;
 		end
 		else if (flush_i) begin
-			pc_o <= pc_i;
+			//pc_o <= pc_i;
 			reg_write_enable_o <= 0;
 			mem_write_enable_o <= 0;
 		end
 		else if (stall_i) begin
-			pc_o <= pc_o;
+			//pc_o <= pc_o;
 			reg_write_enable_o <= reg_write_enable_o;
 			mem_write_enable_o <= mem_write_enable_o;
 		end
 		else begin
-			pc_o <= pc_d;
+			//pc_o <= pc_d;
 			reg_write_enable_o <= reg_write_enable_i;
 			mem_write_enable_o <= mem_write_enable_i;
 		end

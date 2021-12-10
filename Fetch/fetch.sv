@@ -16,14 +16,16 @@ module fetch
 	
 	// pc logic 
 	assign pc_reg = branch_i ? pc_i : pc_d;
-	assign pc_d = stall_i ? pc_d : addr + 4;
+	//assign pc_d = stall_i ? pc_d : addr + 4;
+	assign pc_d = stall_i ? addr : addr + 4;
 	
 	//pc reg
 	always_ff @(posedge clk_i) begin
 		if (!rst_n_i) begin
 			addr <= 0;
 		end
-		else if (!stall_i) begin
+		//else if (!stall_i) begin
+		else begin
 			addr <= pc_reg;
 		end
 	end
@@ -34,7 +36,9 @@ module fetch
 			pc_o <= 0;
 		end
 		else begin
-			pc_o <= pc_d;
+			if (!stall_i) begin
+				pc_o <= addr;
+			end
 		end
 	end
 	
