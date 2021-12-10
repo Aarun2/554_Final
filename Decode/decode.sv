@@ -12,7 +12,7 @@ module decode
 	 output [4:0] d_op2_reg_o, d_op1_reg_o
 	);
 	
-	logic write_d, imm_sel_d, m_write_d;
+	logic write_d, imm_sel_d, m_write_d, mem_cache_valid_d;
 	logic [14:0] imm;
 	logic [31:0] imm_ext_d, read_data1_d, read_data2_d;
 	logic [3:0] alu_op_d;
@@ -25,7 +25,7 @@ module decode
 	 
 	control control_inst (.op_i(instr_i[31:25]), .alu_op_o(alu_op_d), .branch_type_o(branch_d), .reg_write_enable_o(write_d), .imm_sel_o(imm_sel_d),
 						  .wb_sel_o(wb_sel_d), .mem_write_enable_o(m_write_d), .tpu_start_o(tpu_start_d), .tpu_write_enable_A(tpu_wren_A_d), 
-						  .tpu_write_enable_B(tpu_wren_B_d), .tpu_write_enable_C(tpu_wren_C_d), .mem_cache_valid(mem_cache_valid_o));
+						  .tpu_write_enable_B(tpu_wren_B_d), .tpu_write_enable_C(tpu_wren_C_d), .mem_cache_valid(mem_cache_valid_d));
 					 
 	assign imm_ext_d = {{17{imm[14]}}, imm};
 	
@@ -60,6 +60,7 @@ module decode
 			wb_sel_o <= wb_sel_o;
 			col_o <= col_o;
 			row_o <=  row_o;
+			mem_cache_valid_o <= mem_cache_valid_o;
 		end
 		else if (flush_i) begin
 			pc_o <= pc_i;
@@ -72,6 +73,7 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
+			mem_cache_valid_o <= mem_cache_valid_d;
 		end
 		else begin
 			pc_o <= pc_i;
@@ -84,6 +86,7 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
+			mem_cache_valid_o <= mem_cache_valid_d;
 		end
 	
 	// Needs to clear this on flush and reset //
