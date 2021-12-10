@@ -44,7 +44,7 @@ module execute
 	
 	assign branch_inst_o  = branch_type_i;
 	
-	assign branch_dec_o = branch_dec;
+	assign branch_dec_o = branch_dec | branch_type_i[1];
 		
 	//////////////////
 	// EX/MEM Flops //
