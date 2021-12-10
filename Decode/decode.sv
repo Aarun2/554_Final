@@ -60,7 +60,6 @@ module decode
 			wb_sel_o <= wb_sel_o;
 			col_o <= col_o;
 			row_o <=  row_o;
-			mem_cache_valid_o <= mem_cache_valid_o;
 		end
 		else if (flush_i) begin
 			pc_o <= pc_i;
@@ -73,7 +72,6 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
-			mem_cache_valid_o <= mem_cache_valid_d;
 		end
 		else begin
 			pc_o <= pc_i;
@@ -86,7 +84,6 @@ module decode
 			wb_sel_o <= wb_sel_d;
 			col_o <= col_d;
 			row_o <=  row_d;
-			mem_cache_valid_o <= mem_cache_valid_d;
 		end
 	
 	// Needs to clear this on flush and reset //
@@ -99,6 +96,7 @@ module decode
 			write_enable_A_o <= 0;
 			write_enable_B_o <= 0;
 			write_enable_C_o <= 0;
+			mem_cache_valid_o <= 0;
 		end
 		else if (stall_i) begin
 			reg_write_enable_o <= reg_write_enable_o;
@@ -108,6 +106,7 @@ module decode
 			write_enable_A_o <= write_enable_A_o;
 			write_enable_B_o <= write_enable_B_o;
 			write_enable_C_o <= write_enable_C_o;
+			mem_cache_valid_o <= mem_cache_valid_o;
 		end
 		else if (flush_i) begin
 			reg_write_enable_o <= 0;
@@ -117,6 +116,7 @@ module decode
 			write_enable_A_o <= 0;
 			write_enable_B_o <= 0;
 			write_enable_C_o <= 0;
+			mem_cache_valid_o <= 0;
 		end
 		else begin
 			reg_write_enable_o <= write_d;
@@ -126,6 +126,7 @@ module decode
 			write_enable_A_o <= tpu_wren_A_d;
 			write_enable_B_o <= tpu_wren_B_d;
 			write_enable_C_o <= tpu_wren_C_d;
+			mem_cache_valid_o <= mem_cache_valid_d;
 		end
 		
 endmodule
