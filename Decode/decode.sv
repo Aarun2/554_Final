@@ -3,7 +3,7 @@ module decode
 	 input clk_i, rst_n_i, flush_i, reg_write_enable_i, stall_i,
 	 input [4:0] reg_write_dst_i, 
 	 input [31:0] instr_i, write_data_i, pc_i, 
-	 output logic imm_sel_o, reg_write_enable_o, mem_write_enable_o,
+	 output logic imm_sel_o, reg_write_enable_o, mem_write_enable_o, mem_cache_valid_o,
 	 output logic write_enable_A_o, write_enable_B_o, write_enable_C_o, start_o,
 	 output logic [31:0] read_data1_o, read_data2_o, imm_o, pc_o,
 	 output logic [3:0] alu_op_o, 
@@ -25,7 +25,7 @@ module decode
 	 
 	control control_inst (.op_i(instr_i[31:25]), .alu_op_o(alu_op_d), .branch_type_o(branch_d), .reg_write_enable_o(write_d), .imm_sel_o(imm_sel_d),
 						  .wb_sel_o(wb_sel_d), .mem_write_enable_o(m_write_d), .tpu_start_o(tpu_start_d), .tpu_write_enable_A(tpu_wren_A_d), 
-						  .tpu_write_enable_B(tpu_wren_B_d), .tpu_write_enable_C(tpu_wren_C_d));
+						  .tpu_write_enable_B(tpu_wren_B_d), .tpu_write_enable_C(tpu_wren_C_d), .mem_cache_valid(mem_cache_valid_o));
 					 
 	assign imm_ext_d = {{17{imm[14]}}, imm};
 	

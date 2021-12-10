@@ -4,7 +4,7 @@ module control
 	 output imm_sel_o, 
 	 output [3:0] alu_op_o, 
 	 output [1:0] branch_type_o, wb_sel_o, 
-	 output logic reg_write_enable_o, mem_write_enable_o, tpu_start_o, 
+	 output logic reg_write_enable_o, mem_write_enable_o, tpu_start_o, mem_cache_valid,
 	 output logic tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C 
 	);
 
@@ -35,6 +35,7 @@ module control
 		tpu_write_enable_A = 0;
 		tpu_write_enable_B = 0;
 		tpu_write_enable_C = 0;
+		mem_cache_valid = 0;
 		
 		casex(op_i)
 			7'h00 : begin // NOP
@@ -98,9 +99,11 @@ module control
 				reg_write_enable_o = 1;
 			end
 			7'h20 : begin // lw
+				mem_cache_valid = 1;
 				reg_write_enable_o = 1;
 			end
 			7'h21 : begin // sw
+				mem_cache_valid = 1;
 				mem_write_enable_o = 1;
 			end
 			7'h3C : begin // beq
