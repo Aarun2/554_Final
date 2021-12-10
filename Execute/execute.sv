@@ -3,13 +3,13 @@ module execute
 	input clk_i, rst_n_i, flush_i, stall_i,
 	input [31:0] read_data1_i, read_data2_i, imm_i, pc_i, forward_data_i,
 	input [3:0] alu_op_i,
-	input imm_sel_i, reg_write_enable_i, mem_write_enable_i,
+	input imm_sel_i, reg_write_enable_i, mem_write_enable_i, mem_cache_valid_i,
 	input [1:0] branch_type_i, forward_en_i, wb_sel_i,
 	input [4:0] reg_write_dst_i, col_i, row_i,
 	input start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i,	
 	
 	output logic [31:0] result_o, pc_o, cout_o, read_data2_o,
-	output logic reg_write_enable_o, mem_write_enable_o, branch_dec_o,
+	output logic reg_write_enable_o, mem_write_enable_o, branch_dec_o, mem_cache_valid_o,
 	output logic [4:0] reg_write_dst_o,
 	output logic [1:0] wb_sel_o,
 	//output [4:0] e_dest_reg_o,
@@ -56,21 +56,25 @@ module execute
 			//pc_o <= 0;
 			reg_write_enable_o <= 0;
 			mem_write_enable_o <= 0;
+			mem_cache_valid_o <= 0;
 		end
 		else if (flush_i) begin
 			//pc_o <= pc_i;
 			reg_write_enable_o <= 0;
 			mem_write_enable_o <= 0;
+			mem_cache_valid_o <= 0;
 		end
 		else if (stall_i) begin
 			//pc_o <= pc_o;
 			reg_write_enable_o <= reg_write_enable_o;
 			mem_write_enable_o <= mem_write_enable_o;
+			mem_cache_valid_o <= mem_cache_valid_o;
 		end
 		else begin
 			//pc_o <= pc_d;
 			reg_write_enable_o <= reg_write_enable_i;
 			mem_write_enable_o <= mem_write_enable_i;
+			mem_cache_valid_o <= mem_cache_valid_i;
 		end
 	
 	// Don't need to reset some signals //
