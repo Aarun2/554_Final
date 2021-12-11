@@ -222,6 +222,7 @@ module MMCache
 				evict_o = 1;
 				
 				data_out_evict_o = data_in_dcache_i;
+				addr_out_request_o = {addr_in_dcache_i[WORD_BITS-1:6], 6'h00};
 				addr_out_evict_o = {addr_in_dcache_i[WORD_BITS-1:6], 6'h00};
 				
 				if (evict_i) begin
