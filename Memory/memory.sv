@@ -3,6 +3,7 @@ module memory
 	input clk_i, rst_n_i, 
 	input flush_i, stall_i,
 	input mem_write_en_i, reg_write_en_i, forward_en_i, data_cache_valid_i,	
+	input cache_req_i,
 	input [1:0] wb_sel_i,
 	input [4:0] reg_write_dst_i,
 	input [31:0] cout_i, result_i, read_data_2_i, forward_data_i, data_from_cache_i,
@@ -11,18 +12,24 @@ module memory
 	output logic [1:0] wb_sel_o, // pass through
 	output logic [4:0] reg_write_dst_o, // pass through
 	output logic [31:0] result_o, cout_o, // pass through
-	output logic [31:0] read_data_o, data_to_cache_o, addr_to_cache_o
+	output logic [31:0] read_data_o, data_to_cache_o, addr_to_cache_o,
+	output logic cache_req_o
 	); 
 	
 	//intermediate signals
 	logic [31:0] read_data_d;
-	
-	assign stall_o = data_cache_valid_i ? 0 : 1; // for control flow 
-	
+	assign cache_req_o = cache_req_i;
+	//assign stall_o = data_cache_valid_i ? 0 : 1; // for control flow 
+	assign stall_o = ~((cache_req_i && data_cache_valid_i) || (~cache_req_i));
 	// outputs to D cache
-	assign data_to_cache_o = flush_i ? 0 : stall_i ? data_to_cache_o : read_data_2_i;
-	assign addr_to_cache_o = flush_i ? 0 : stall_i ? addr_to_cache_o : result_i;
-	assign wr_to_cache_o = flush_i ? 0 : stall_i ? wr_to_cache_o : mem_write_en_i;
+	//assign data_to_cache_o = flush_i ? 0 : stall_i ? data_to_cache_o : read_data_2_i;
+	//assign addr_to_cache_o = flush_i ? 0 : stall_i ? addr_to_cache_o : result_i;
+	//assign wr_to_cache_o = flush_i ? 0 : stall_i ? wr_to_cache_o : mem_write_en_i;
+	
+	assign data_to_cache_o = read_data_2_i;
+	assign addr_to_cache_o = result_i;
+	assign wr_to_cache_o = mem_write_en_i;
+	
 	
 	// inputs back from D cache
 	assign read_data_d = data_cache_valid_i ? data_from_cache_i : read_data_o;

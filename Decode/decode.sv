@@ -98,16 +98,6 @@ module decode
 			write_enable_C_o <= 0;
 			mem_cache_valid_o <= 0;
 		end
-		else if (stall_i) begin
-			reg_write_enable_o <= reg_write_enable_o;
-			mem_write_enable_o <= mem_write_enable_o;
-			branch_type_o <= branch_type_o;
-			start_o <= start_o;
-			write_enable_A_o <= write_enable_A_o;
-			write_enable_B_o <= write_enable_B_o;
-			write_enable_C_o <= write_enable_C_o;
-			mem_cache_valid_o <= mem_cache_valid_o;
-		end
 		else if (flush_i) begin
 			reg_write_enable_o <= 0;
 			mem_write_enable_o <= 0;
@@ -118,6 +108,17 @@ module decode
 			write_enable_C_o <= 0;
 			mem_cache_valid_o <= 0;
 		end
+		else if (stall_i) begin
+			reg_write_enable_o <= reg_write_enable_o;
+			mem_write_enable_o <= mem_write_enable_o;
+			branch_type_o <= branch_type_o;
+			start_o <= start_o;
+			write_enable_A_o <= write_enable_A_o;
+			write_enable_B_o <= write_enable_B_o;
+			write_enable_C_o <= write_enable_C_o;
+			mem_cache_valid_o <= mem_cache_valid_o;
+		end
+		
 		else begin
 			reg_write_enable_o <= write_d;
 			mem_write_enable_o <= m_write_d;

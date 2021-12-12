@@ -48,8 +48,13 @@ module fetch
 			instr_o <= 0;
 		end
 		else begin
-			instr_o <= instr_d;
+			if (flush_i) begin
+				instr_o <= 0;
+			end else if (!stall_i) begin
+				instr_o <= instr_d;
+			end
 		end
 	end
+	
 	
 endmodule
