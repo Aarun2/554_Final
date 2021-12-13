@@ -219,8 +219,8 @@ module proc_pipe_cache_tb();
 	always@(posedge clk) begin
 		if(rst_n) begin
 			if(local_pc != 500) begin
-				checkPrev();
-				checkChange();
+				//checkPrev();
+				//checkChange();
 				step();
 			end else begin
 				$display("TB is over!");
