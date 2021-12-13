@@ -41,6 +41,8 @@ module ICache
 	reg [WORD_BITS-1:$clog2(INDEX)+6] block_address[INDEX-1:0];
 	reg [INDEX-1:0] valid_block;
 	
+	reg [31:0] addr_instruciton;
+	
 	// ENUM STATES
 	typedef enum {IDLE, READ, REQUESTREAD, REPORT} state_type;
 	state_type curr_state, next_state;
@@ -135,7 +137,9 @@ module ICache
 			end
 			
 			REPORT: begin
-				pipeline_valid_o = 1;
+				if (addr_instruciton == addr_in_pipeline_i) begin
+					pipeline_valid_o = 1;
+				end
 			end
 			
 		endcase
@@ -205,6 +209,19 @@ module ICache
 					valid_block[i] <= 1;
 				end
 			end
+		end
+	end
+	
+	// Intruction read
+	always_ff @(posedge clk_i) begin
+		if (!rst_n_i) begin
+			addr_instruciton <= 0;
+		end
+		else if (next_state == READ) begin
+			addr_instruciton <= addr_in_pipeline_i;
+		end
+		else begin
+			addr_instruciton <= addr_instruciton;
 		end
 	end
 	
