@@ -218,7 +218,7 @@ module proc_pipe_cache_tb();
 	
 	always@(posedge clk) begin
 		if(rst_n) begin
-			if(local_pc != 500) begin
+			if(local_pc != 476) begin
 				checkPrev();
 				checkChange();
 				step();
@@ -968,7 +968,11 @@ module proc_pipe_cache_tb();
 					reg1Val = local_rf[reg1];
 					reg2Val = local_rf[reg2];
 					imm = {{17{inst[24]}}, inst[24:20], inst[9:0]};
-					local_pc = (reg1Val == reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					if(~f_stall) begin
+						local_pc = (reg1Val == reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					end else begin
+						local_pc = (reg1Val == reg2Val) ? (local_pc - 4 + imm):(local_pc);
+					end
 					next_pc = local_pc + 4;
 				end
 				BNE: begin
@@ -982,7 +986,11 @@ module proc_pipe_cache_tb();
 					reg1Val = local_rf[reg1];
 					reg2Val = local_rf[reg2];
 					imm = {{17{inst[24]}}, inst[24:20], inst[9:0]};
-					local_pc = (reg1Val != reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					if(~f_stall) begin
+						local_pc = (reg1Val != reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					end else begin
+						local_pc = (reg1Val != reg2Val) ? (local_pc - 4 + imm):(local_pc);
+					end
 					next_pc = local_pc + 4;
 				end
 				BLT: begin 
@@ -996,7 +1004,11 @@ module proc_pipe_cache_tb();
 					reg1Val = local_rf[reg1];
 					reg2Val = local_rf[reg2];
 					imm = {{17{inst[24]}}, inst[24:20], inst[9:0]};
-					local_pc = (reg1Val < reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					if(~f_stall) begin
+						local_pc = (reg1Val < reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					end else begin
+						local_pc = (reg1Val < reg2Val) ? (local_pc - 4 + imm):(local_pc);
+					end
 					next_pc = local_pc + 4;
 				end
 				BGT: begin
@@ -1010,13 +1022,21 @@ module proc_pipe_cache_tb();
 					reg1Val = local_rf[reg1];
 					reg2Val = local_rf[reg2];
 					imm = {{17{inst[24]}}, inst[24:20], inst[9:0]};
-					local_pc = (reg1Val > reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					if(~f_stall) begin					
+						local_pc = (reg1Val > reg2Val) ? (local_pc - 8 + imm):(local_pc);
+					end else begin
+						local_pc = (reg1Val > reg2Val) ? (local_pc - 4 + imm):(local_pc);
+					end
 					next_pc = local_pc + 4;
 				end
 				J: begin
 					logic signed [REG_SIZE-1:0] imm;
 					imm = {{17{inst[14]}}, inst[14:0]};
-					local_pc = local_pc  - 8 + imm;
+					if(~f_stall) begin
+						local_pc = local_pc  - 8 + imm;
+					end else begin
+						local_pc = local_pc  - 4 + imm;
+					end
 					next_pc = local_pc + 4;
 				end
 				JR: begin 
