@@ -371,12 +371,11 @@ namespace priscas
 	BW_32 offset_to_address_br(BW_32 current, BW_32 target)
 	{
 		BW_32 ret = target.AsUInt32() - current.AsUInt32();
-		ret = ret.AsUInt32() - 4;
-		ret = (ret.AsUInt32() >> 2);
+		//ret = ret.AsUInt32() - 4;
+		//ret = (ret.AsUInt32() >> 2);
 		return ret;
 	}
 
-    // TODO
 	// Main interpretation routine
 	mBW MIPS_32::assemble(const Arg_Vec& args, const BW& baseAddress, syms_table& jump_syms) const
 	{
@@ -405,9 +404,9 @@ namespace priscas
         else if("and" == args[0]) { current_op = priscas::AND; }
         else if("sll" == args[0]) { current_op = priscas::SLL; }
 		else if("srl" == args[0]) { current_op = priscas::SRL; }
-        else if("sra" == args[0]) { current_op = priscas::SRL; }
-		else if("slt" == args[0]) { current_op = priscas::SRA; }
-        else if("mul" == args[0]) { current_op = priscas::SLT; }		
+        else if("sra" == args[0]) { current_op = priscas::SRA; }
+		else if("slt" == args[0]) { current_op = priscas::SLT; }
+        else if("mul" == args[0]) { current_op = priscas::MUL; }		
 
         // I format
 		else if("addi" == args[0]) { current_op = priscas::ADDI; }
@@ -416,8 +415,8 @@ namespace priscas
         else if("andi" == args[0]) { current_op = priscas::ANDI; }
         else if("slli" == args[0]) { current_op = priscas::SLLI; }
 		else if("srli" == args[0]) { current_op = priscas::SRLI; }
-        else if("srai" == args[0]) { current_op = priscas::SRLI; }
-		else if("slti" == args[0]) { current_op = priscas::SRAI; }
+        else if("srai" == args[0]) { current_op = priscas::SRAI; }
+		else if("slti" == args[0]) { current_op = priscas::SLTI; }
         else if("lui" == args[0]) { current_op = priscas::LUI; }
 
         // L format
@@ -519,8 +518,9 @@ namespace priscas
                 {
                     if(jump_syms.has(args[1]))
 				    {
-					    priscas::BW_32 label_PC = static_cast<int32_t>(jump_syms.lookup_from_sym(std::string(args[1].c_str())));
-					    imm = (label_PC.AsUInt32() >> 2);
+					    priscas::BW_32 addr = baseAddress.AsUInt32();
+					    priscas::BW_32 label_PC = static_cast<uint32_t>(jump_syms.lookup_from_sym(std::string(args[1].c_str())));
+					    imm = priscas::offset_to_address_br(addr, label_PC).AsUInt32();
 				    }
                     else
                     {
@@ -637,8 +637,9 @@ namespace priscas
             {
                 if(jump_syms.has(args[3]))
                 {
-                    priscas::BW_32 label_PC = static_cast<int32_t>(jump_syms.lookup_from_sym(std::string(args[3].c_str())));
-                    imm = (label_PC.AsUInt32() >> 2);
+                    priscas::BW_32 addr = baseAddress.AsUInt32();
+					priscas::BW_32 label_PC = static_cast<uint32_t>(jump_syms.lookup_from_sym(std::string(args[3].c_str())));
+				    imm = priscas::offset_to_address_br(addr, label_PC).AsUInt32();
                 }
                 else
                 {

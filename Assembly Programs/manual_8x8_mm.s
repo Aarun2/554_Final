@@ -10,13 +10,13 @@ addi $r5, $r5, 4        ; value for B matrix to be stored in mem
 lui $r3, 4              ; 16384 base mem addr
 
 xor $r4, $r4, $r4       ;
-addi $r4, $r4, 16       ;16 loads to memory for a 4x4
+addi $r4, $r4, 64       ; 64 loads to memory for a 8x8
 
 ; store vals to memory for A matrix in row major order
 sw $r3,  $r2, 0         ; store 3 to mem 
 addi $r3, $r3, 4        ; inc mem offset by 4
 addi $r1, $r1, 1        ; i++
-blt $r1, $r4, -12       ; while i < 16
+blt $r1, $r4, -12       ; while i < 64
 
 ; store B matrix vals to memory 
 ; assume B values are stored in COLUMN major order for simpicity in offset math
@@ -29,7 +29,7 @@ xor $r1, $r1, $r1       ;
 sw $r3, $r5, 0         ; store 4 to mem
 addi $r3, $r3, 4        ; inc mem offset by 4
 addi $r1, $r1, 1        ; i++
-blt $r1, $r4, -12       ; while i < 16
+blt $r1, $r4, -12       ; while i < 64
 
 ; at this point...
 ; $r3 = A addr
@@ -41,7 +41,6 @@ blt $r1, $r4, -12       ; while i < 16
 ; $r13 = A mem offset
 ; $r14 = B mem offset
 ; $r15 = partialSum ctr
-; $r21 will be the loop bound for total cell traversal (16)
 ; $r22 will be our loop counter for rows in matrix A
 ; $r23 will be out loop counter for cols in matrix B 
 ; $r24 will be out loop bound for rows in A and cols in B (4)
@@ -49,13 +48,11 @@ blt $r1, $r4, -12       ; while i < 16
 xor $r13, $r13, $r13
 xor $r14, $r14, $r14
 xor $r15, $r15, $r15
-xor $r21, $r21, $r21
 xor $r22, $r22, $r22
 xor $r23, $r23, $r23
 xor $r24, $r24, $r24
 
-addi $r21, $r21, 16     ; loop bound for cells
-addi $r24, $r24, 4      ; loop bound for row/col
+addi $r24, $r24, 8      ; loop bound for row/col
 lui $r11, 8             ; C start addr
 lui $r3, 4              ; reset back to main A addr (16384) 
 addi $r13, $r3, 0       ;
