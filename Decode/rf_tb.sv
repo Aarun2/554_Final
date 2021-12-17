@@ -11,7 +11,7 @@ module rf_tb();
 	           .reg_write_dst_i(writeregsel), .write_data_i(writedata), .read_data1_o(read1data), .read_data2_o(read2data));
 	
 	initial
-		$readmemh("test.txt", mem);
+		$readmemh("./test.txt", mem);
 	
 	/////////////////////////////////////////////////////////////////
 	// Task that reads a random index and checks if read is valid  //
