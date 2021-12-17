@@ -9,7 +9,7 @@ module rf
 	reg [31:0] mem [31:0];
 	
 	initial	
-		$readmemh("./test_1.txt", mem);
+		$readmemh("./test.txt", mem);
 	
 	assign read_data1_o = write_enable_i ? (reg_write_dst_i == read_reg1_sel_i) ? write_data_i : mem[read_reg1_sel_i] : mem[read_reg1_sel_i];
 	assign read_data2_o = write_enable_i ? (reg_write_dst_i == read_reg2_sel_i) ? write_data_i : mem[read_reg2_sel_i] : mem[read_reg2_sel_i];
