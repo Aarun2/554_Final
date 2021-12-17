@@ -18,7 +18,7 @@ module control_tb();
 	logic [6:0] op_i;
 	logic [3:0] alu_op_o;
 	logic [1:0] branch_type_o, wb_sel_o;
-	logic reg_write_enable_o, imm_sel_o, mem_write_enable_o, tpu_start_o,  tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C;
+	logic reg_write_enable_o, imm_sel_o, mem_write_enable_o, tpu_start_o,  tpu_write_enable_A, tpu_write_enable_B, tpu_write_enable_C, mem_cache_valid;
 
 	control ctrl_DUT (.*);
 	
@@ -28,25 +28,25 @@ module control_tb();
 	/////////////////////////////
 	
 	function R_instr;
-		R_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || 
+		R_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b0 || mem_cache_valid !== 1'b0 ||
 				   wb_sel_o !== 2'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
 				   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
 	endfunction
 	
 	function I_instr;
-		I_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || 
+		I_instr = (branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || mem_cache_valid !== 1'b0 ||
 				   wb_sel_o !== 2'b0 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 ||
 				   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
 	endfunction
 	
 	function B_instr;
-		B_instr = (branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0 ||
+		B_instr = (branch_type_o !== 2'h1 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b0 || mem_cache_valid !== 1'b0 ||
 				   mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || tpu_write_enable_A !== 1'b0 || 
 				   tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0);
 	endfunction
 
 	function TPU_instr;
-		TPU_instr = (branch_type_o !== 2'h0 || mem_write_enable_o !== 1'b0);
+		TPU_instr = (branch_type_o !== 2'h0 || mem_write_enable_o !== 1'b0 || mem_cache_valid !== 1'b0);
 	endfunction
 	
 	/////////////////////////////
@@ -406,7 +406,7 @@ module control_tb();
 			end
 			begin
 				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b1 || imm_sel_o !== 1'b1 || 
-				       wb_sel_o !== 2'b1 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || 
+				       wb_sel_o !== 2'b1 || mem_write_enable_o !== 1'b0 || tpu_start_o !== 1'b0 || mem_cache_valid !== 1'b1 ||
 					   tpu_write_enable_A !== 1'b0 || tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
@@ -425,7 +425,7 @@ module control_tb();
 			end
 			begin
 				while (alu_op_o !== 4'h1 || branch_type_o !== 2'h0 || reg_write_enable_o !== 1'b0 || imm_sel_o !== 1'b1 ||
-				       mem_write_enable_o !== 1'b1 || tpu_start_o !== 1'b0 || tpu_write_enable_A !== 1'b0 || 
+				       mem_write_enable_o !== 1'b1 || tpu_start_o !== 1'b0 || tpu_write_enable_A !== 1'b0 || mem_cache_valid !== 1'b1 ||
 					   tpu_write_enable_B !== 1'b0 || tpu_write_enable_C !== 1'b0)
 					#1;
 				disable timeout1;
