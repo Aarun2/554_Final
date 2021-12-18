@@ -11,3 +11,7 @@ are commma seperated and the test bench is always the last file.
 
 This file will parse and run each test bench sub section. Dependenices are added and run on questasim. Parses from the top the bottom. Coverage results for each module
 can  be found in their respective folders in the index.html file. Look at the file for the results of each test bench.
+
+## Coverage Results
+
+The 7 zip file contains my coverage results when I ran the regression test. You can also run the python script and get your own results. Have fun!
