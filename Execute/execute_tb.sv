@@ -6,13 +6,13 @@ module execute_tb();
 	logic signed [31:0] read_data1_i, read_data2_i, imm_i, forward_data_i;
 	logic [31:0] pc_i;
 	logic [3:0] alu_op_i;
-	logic imm_sel_i, reg_write_enable_i, mem_write_enable_i;
+	logic imm_sel_i, reg_write_enable_i, mem_write_enable_i, mem_cache_valid_i;
 	logic [1:0] branch_type_i, forward_en_i, wb_sel_i;
 	logic [4:0] reg_write_dst_i, col_i, row_i;
 	logic start_i, write_enable_A_i, write_enable_B_i, write_enable_C_i;
 	
 	logic [31:0] result_o;
-	logic reg_write_enable_o, mem_write_enable_o;
+	logic reg_write_enable_o, mem_write_enable_o, mem_cache_valid_o, mem_cache_valid_old;
 	logic [4:0] reg_write_dst_o;
 	logic [31:0] pc_o, cout_o, read_data2_o;
 	logic [4:0] e_dest_reg_o;
@@ -131,7 +131,7 @@ module execute_tb();
 	
 	// EX/MEM Checks //
 	task ex_mem_check();
-		if (wb_sel_o !== wb_sel_i || reg_write_enable_o !== reg_write_enable_i ||
+		if (wb_sel_o !== wb_sel_i || reg_write_enable_o !== reg_write_enable_i || mem_cache_valid_i !== mem_cache_valid_o ||
 			mem_write_enable_o !== mem_write_enable_i || reg_write_dst_o !== reg_write_dst_i ||
 			read_data2_o !== read_data2_i) begin
 			$display("No data is forwarded with no flush or stalls and so mem stage should get execute signals");
@@ -270,7 +270,7 @@ module execute_tb();
 		@(posedge clk_i);
 		rst_n_i = 1;
 		// Test 1: Reset Test //
-		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || pc_o !== 0) begin
+		if (reg_write_enable_o !== 0 || mem_write_enable_o !== 0) begin
 			$display("Problem with reset");
 			$stop();
 		end
@@ -288,6 +288,7 @@ module execute_tb();
 			mem_write_enable_i = $random();
 			branch_type_i = $random();
 			reg_write_dst_i = $random();
+			mem_cache_valid_i = $random();
 			@(posedge clk_i);
 			@(negedge clk_i);
 			branch_check();
@@ -299,6 +300,7 @@ module execute_tb();
 		stall_i = 1;
 		result_old = result_o;
 		wb_sel_old = wb_sel_o;
+		mem_cache_valid_old = mem_cache_valid_o;
 		reg_write_enable_old = reg_write_enable_o;
 		mem_write_enable_old = mem_write_enable_o;
 		write_reg_sel_old = reg_write_dst_o;
@@ -308,7 +310,7 @@ module execute_tb();
 		
 		@(posedge clk_i);
 		stall_i = 0;
-		if (result_old !== result_o || wb_sel_old !== wb_sel_o || reg_write_enable_old !== reg_write_enable_o ||
+		if (result_old !== result_o || wb_sel_old !== wb_sel_o || reg_write_enable_old !== reg_write_enable_o || mem_cache_valid_old !== mem_cache_valid_o ||
 		    mem_write_enable_old !== mem_write_enable_o || write_reg_sel_old !== reg_write_dst_o || pc_old !== pc_o ||
 			cout_old !== cout_o || read_data2_old !== read_data2_o) begin
 			$display("Stall is not working correctly");
