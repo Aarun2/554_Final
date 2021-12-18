@@ -5,7 +5,7 @@ module decode_tb();
 	logic clk_i, rst_n_i, flush_i, reg_write_enable_i, stall_i;
 	logic [4:0] reg_write_dst_i, reg_write_dst_o, col_o, row_o, d_op2_reg_o, d_op1_reg_o;
 	logic [31:0] instr_i, write_data_i, pc_i, pc_o;
-	logic imm_sel_o, reg_write_enable_o, mem_write_enable_o;
+	logic imm_sel_o, reg_write_enable_o, mem_write_enable_o, mem_cache_valid_o;
 	logic write_enable_A_o, write_enable_B_o, write_enable_C_o, start_o;
 	logic [31:0] read_data1_o, read_data2_o, imm_o;
 	logic [3:0] alu_op_o;
@@ -25,7 +25,7 @@ module decode_tb();
 	decode decode_DUT (.*);
 	
 	initial
-		$readmemh("test.txt", mem);
+		$readmemh("./test.txt", mem);
 		
 	/////////////////////////////////
 	// Helper function to abstract //
@@ -33,34 +33,34 @@ module decode_tb();
 	/////////////////////////////////
 	
 	function R_instr();
-		R_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
+		R_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || mem_cache_valid_o !== 1'b0 ||
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 || 
 				   reg_write_dst_o !== instr_i[24:20]);
 	endfunction
 	
 	function I_instr();
-		I_instr = (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 || 
+		I_instr = (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 ||  mem_cache_valid_o !== 1'b0 ||
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || wb_sel_o !== 0 || branch_type_o !== 0 ||
 				   imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} || reg_write_dst_o !== instr_i[24:20]);
 	endfunction
 	
 	function B_instr();
-		B_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || 
+		B_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || mem_cache_valid_o !== 1'b0 ||
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i || branch_type_o !== 1 ||
 				   imm_o !== {{17{instr_i[24]}}, instr_i[24:20], instr_i[9:0]});
 	endfunction
 	
 	function j_instr();
-		j_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 || 
+		j_instr = (imm_sel_o !== 0 || reg_write_enable_o !== 0 || mem_write_enable_o !== 0 ||  mem_cache_valid_o !== 1'b0 ||
 		           write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 ||
 				   start_o !== 0 || pc_o !== pc_i);
 	endfunction
 	
 	function tpu_instr();
-		tpu_instr = (mem_write_enable_o !== 0 || pc_o !== pc_i || branch_type_o !== 0);
+		tpu_instr = (mem_write_enable_o !== 0 || pc_o !== pc_i || branch_type_o !== 0 || mem_cache_valid_o !== 1'b0);
 	endfunction
 	
 	//////////////////////////////////////
@@ -325,7 +325,7 @@ module decode_tb();
 	task lw_check();
 		@(posedge clk_i);
 		@(negedge clk_i);
-		if (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 ||
+		if (imm_sel_o !== 1 || reg_write_enable_o !== 1 || mem_write_enable_o !== 0 ||  mem_cache_valid_o !== 1'b1 ||
 		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 ||
 			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
 			pc_o !== pc_i || alu_op_o !== 1 || wb_sel_o !== 1 || reg_write_dst_o !== instr_i[24:20]) begin
@@ -338,7 +338,7 @@ module decode_tb();
 		@(posedge clk_i);
 		@(negedge clk_i);
 		if (imm_sel_o !== 1 || reg_write_enable_o !== 0 || mem_write_enable_o !== 1 || read_data2_o !== mem[instr_i[14:10]] ||
-		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 ||
+		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 || mem_cache_valid_o !== 1'b1 ||
 			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
 			pc_o !== pc_i || alu_op_o !== 1) begin
 			$display("Problem with sw instruction");
