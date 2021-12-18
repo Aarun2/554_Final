@@ -25,5 +25,3 @@ for section in parser.sections():
     subprocess.run(vsim1_cmd, shell=True)
     subprocess.run(vsim2_cmd, shell=True)
     subprocess.run(mv_cmd, shell=True)
-    break # for testing purposes
-
