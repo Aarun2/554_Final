@@ -19,7 +19,7 @@ module decode_tb();
 	logic [3:0] alu_op_old;
 	logic [1:0] wb_sel_old, branch_type_old;
 	
-	logic [31:0] mem [31:0];
+	reg [31:0] mem [31:0];
 	logic [24:0] reg_data;
 	
 	decode decode_DUT (.*);
@@ -339,7 +339,7 @@ module decode_tb();
 		@(negedge clk_i);
 		if (imm_sel_o !== 1 || reg_write_enable_o !== 0 || mem_write_enable_o !== 1 || read_data2_o !== mem[instr_i[14:10]] ||
 		    read_data1_o !== mem[instr_i[19:15]] || branch_type_o !== 0 || write_enable_A_o !== 0 || mem_cache_valid_o !== 1'b1 ||
-			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[14]}}, instr_i[14:0]} ||
+			write_enable_B_o !== 0 || write_enable_C_o !== 0 || start_o !== 0 || imm_o !== {{17{instr_i[24]}}, instr_i[24:20], instr_i[9:0]} ||
 			pc_o !== pc_i || alu_op_o !== 1) begin
 			$display("Problem with sw instruction");
 			$stop();
@@ -363,7 +363,7 @@ module decode_tb();
 		@(negedge clk_i);
 		if (tpu_instr || read_data1_o !== mem[instr_i[19:15]] || start_o !== 0 ||
 			write_enable_A_o !== 1 || write_enable_B_o !== 0 || write_enable_C_o !== 0 || 
-			row_o !== instr_i[17:13] || col_o !== instr_i[12:8] || reg_write_enable_o !== 0) begin
+			row_o !== instr_i[14:10] || col_o !== instr_i[9:5] || reg_write_enable_o !== 0) begin
 			$display("Problem with lam instruction");
 			$stop();
 		end
@@ -374,7 +374,7 @@ module decode_tb();
 		@(negedge clk_i);
 		if (tpu_instr || read_data1_o !== mem[instr_i[19:15]] || start_o !== 0 ||
 			write_enable_A_o !== 0 || write_enable_B_o !== 1 || write_enable_C_o !== 0 || 
-			row_o !== instr_i[17:13] || col_o !== instr_i[12:8] || reg_write_enable_o !== 0) begin
+			row_o !== instr_i[14:10] || col_o !== instr_i[9:5] || reg_write_enable_o !== 0) begin
 			$display("Problem with lbm instruction");
 			$stop();
 		end
@@ -385,7 +385,7 @@ module decode_tb();
 		@(negedge clk_i);
 		if (tpu_instr || read_data1_o !== mem[instr_i[19:15]] || start_o !== 0 ||
 			write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 1 || 
-			row_o !== instr_i[17:13] || col_o !== instr_i[12:8] || reg_write_enable_o !== 0) begin
+			row_o !== instr_i[14:10] || col_o !== instr_i[9:5] || reg_write_enable_o !== 0) begin
 			$display("Problem with lacc instruction");
 			$stop();
 		end
@@ -396,7 +396,7 @@ module decode_tb();
 		@(negedge clk_i);
 		if (tpu_instr || start_o !== 0 || reg_write_dst_o !== instr_i[24:20] || wb_sel_o !== 2 ||
 			write_enable_A_o !== 0 || write_enable_B_o !== 0 || write_enable_C_o !== 0 || 
-			row_o !== instr_i[17:13] || col_o !== instr_i[12:8] || reg_write_enable_o !== 1) begin
+			row_o !== instr_i[14:10] || col_o !== instr_i[9:5] || reg_write_enable_o !== 1) begin
 			$display("Problem with racc instruction");
 			$stop();
 		end
