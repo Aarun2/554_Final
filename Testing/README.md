@@ -14,4 +14,4 @@ can  be found in their respective folders in the index.html file. Look at the fi
 
 ## Coverage Results
 
-The 7 zip file contains my coverage results when I ran the regression test. You can also run the python script and get your own results. Have fun!
+The 7 zip file contains my coverage results when I ran the regression test. You can also run the python script and get your own results. Have fun! And don't forget to run it on the linux machines!
